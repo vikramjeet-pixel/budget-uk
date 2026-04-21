@@ -1,65 +1,153 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import MapView from "@/components/features/Map";
+import { useSpots } from "@/hooks/useSpots";
+import { useNearbySpots } from "@/hooks/useNearbySpots";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { SpotCard } from "@/components/features/SpotCard";
+import { CategoryPills } from "@/components/features/CategoryPills";
+import { NeighbourhoodFilter } from "@/components/features/NeighbourhoodFilter";
+import { LocationToast } from "@/components/features/LocationToast";
+import { SpotDrawer } from "@/components/features/SpotDrawer";
+
+function HomePageContent() {
+  const searchParams = useSearchParams();
+  const [activeSpotId, setActiveSpotId] = useState<string | undefined>(undefined);
+  const [drawerSpotId, setDrawerSpotId] = useState<string | undefined>(undefined);
+  
+  // Geolocation Bounds natively tracking variables explicitly
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [showLocationToast, setShowLocationToast] = useState(false);
+  
+  const currentCats = searchParams.get("cat")?.split(",").filter(Boolean) || [];
+  const selectedNbhs = searchParams.get("nbh")?.split(",").filter(Boolean) || [];
+  const selectedBors = searchParams.get("bor")?.split(",").filter(Boolean) || [];
+  const isNearMe = searchParams.get("nearby") === "true";
+
+  // Watch boundary tracking location natively hitting browser DOM payloads
+  useEffect(() => {
+    if (isNearMe && !userLocation && !showLocationToast) {
+       if (typeof window !== "undefined" && window.isSecureContext && "geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setUserLocation([position.coords.latitude, position.coords.longitude]);
+              setShowLocationToast(false);
+            },
+            (err) => {
+              console.warn("Location structurally denied organically parsing fallback bounds:", err);
+              setShowLocationToast(true);
+            },
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+          );
+       } else {
+          // HTTPS constraints or literal browser lack of parameters natively block it
+          setShowLocationToast(true);
+       }
+    } else if (!isNearMe) {
+       setUserLocation(null);
+       setShowLocationToast(false);
+    }
+  }, [isNearMe, userLocation, showLocationToast]);
+
+  const { spots: standardSpots, loading: standardLoading } = useSpots(
+    !isNearMe ? { 
+      categories: currentCats, 
+      neighbourhoods: selectedNbhs, 
+      boroughs: selectedBors 
+    } : { status: "paused_hook" }
+  );
+
+  const { spots: nearbySpots, loading: nearbyLoading } = useNearbySpots({
+    center: userLocation,
+    radiusInM: 2000,
+    category: currentCats.length === 1 ? currentCats[0] : undefined,
+    enabled: isNearMe && userLocation !== null
+  });
+
+  const spots = isNearMe ? nearbySpots : standardSpots;
+  const loading = isNearMe 
+    ? (nearbyLoading || (isNearMe && !userLocation && !showLocationToast) || showLocationToast) 
+    : standardLoading;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col md:flex-row min-h-screen relative bg-[#fcfbf8]">
+      
+      {/* Map Pane - Left Desktop / Top Mobile */}
+      <div className="sticky top-0 md:fixed md:top-0 md:left-0 z-0 h-[60vh] w-full md:h-screen md:w-[60%]">
+        
+        {/* Dynamic Fallback Injection Context */}
+        {showLocationToast && (
+           <LocationToast 
+              onClose={() => setShowLocationToast(false)} 
+              onLocationFound={(loc) => {
+                 setUserLocation(loc);
+                 setShowLocationToast(false);
+              }} 
+           />
+        )}
+
+        <MapView 
+          spots={spots} 
+          activeSpotId={drawerSpotId || activeSpotId}
+          userLocation={userLocation}
+          onMarkerClick={(spot) => {
+            setDrawerSpotId(spot.id);
+            document.getElementById(`spot-card-${spot.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      </div>
+
+      {/* List Pane - Right Desktop / Slides over bottom Mobile */}
+      <div className="relative z-10 flex w-full flex-col bg-[#fcfbf8] rounded-t-2xl md:rounded-none shadow-[0_-8px_30px_-15px_rgba(0,0,0,0.1)] md:shadow-none md:absolute md:top-0 md:right-0 md:w-[40%] md:h-screen md:overflow-y-auto border-t md:border-l md:border-t-0 border-[var(--border-passive)] mt-[-20px] md:mt-0 pt-0">
+        
+        {/* Mobile slide grab-handle */}
+        <div className="w-12 h-1.5 bg-[var(--border-passive)] rounded-[9999px] mx-auto mt-3 mb-2 md:hidden" />
+
+        {/* Header & Categories Sticky Block */}
+        <div className="sticky top-0 z-20 bg-gradient-to-b from-[#fcfbf8] via-[#fcfbf8] to-transparent pt-4 pb-4 px-4 backdrop-blur-sm flex flex-col gap-1">
+          <CategoryPills />
+          {currentCats.length === 0 && <NeighbourhoodFilter />}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Spot Feed Map */}
+        <div className="flex flex-col px-4 pb-20 space-y-4">
+          {loading ? (
+            <div className="w-full py-20 text-center text-[#5f5f5d]">
+              {showLocationToast ? "Awaiting manual bounds logic..." : "Mapping budget areas..."}
+            </div>
+          ) : spots.length === 0 ? (
+            <div className="w-full py-20 text-center text-[#5f5f5d]">No spots found for this filter.</div>
+          ) : (
+            spots.map((spot) => (
+              <SpotCard 
+                key={spot.id}
+                spot={spot}
+                isActive={activeSpotId === spot.id || drawerSpotId === spot.id}
+                onClick={() => setDrawerSpotId(spot.id)}
+                onMouseEnter={() => setActiveSpotId(spot.id)}
+                onMouseLeave={() => setActiveSpotId(undefined)}
+              />
+            ))
+          )}
         </div>
-      </main>
+      </div>
+      
+      {/* Explicitly Map Interactive Overlays natively mapping states! */}
+      <SpotDrawer 
+        spot={spots.find((s) => s.id === drawerSpotId) || null} 
+        onClose={() => setDrawerSpotId(undefined)} 
+      />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-[#5f5f5d]">Loading Map...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }

@@ -1,0 +1,53 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Auth Validation Helpers
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isModOrAdmin() {
+      // Storage natively querying Firestore roles cross-platform dynamically.
+      let role = firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role;
+      return isAuthenticated() && (role == 'moderator' || role == 'admin');
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isValidSize(maxMB) {
+      return request.resource.size <= maxMB * 1024 * 1024;
+    }
+
+    // 1. Avatars
+    match /avatars/{userId}.jpg {
+      allow read: if true;
+      // Writeable only by their owning User natively + Size bounded + Type bounded
+      allow write: if isAuthenticated() 
+                   && request.auth.uid == userId
+                   && isImage()
+                   && isValidSize(1);
+    }
+
+    // 2. Submission Photos
+    match /submissions/{submissionId}/{filename} {
+      allow read: if true;
+      // Writable mapping only if the authenticated user explicitly owns the submission Document
+      allow write: if isAuthenticated() 
+                   && firestore.get(/databases/(default)/documents/submissions/$(submissionId)).data.submittedBy == request.auth.uid
+                   && isImage()
+                   && isValidSize(3);
+    }
+
+    // 3. Official Spots
+    match /spots/{spotId}/cover.jpg {
+      allow read: if true;
+      // Strictly defined out explicitly limiting external modifications to Admin tier vectors exclusively
+      allow write: if isModOrAdmin();
+    }
+    
+  }
+}
