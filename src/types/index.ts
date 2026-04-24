@@ -42,6 +42,8 @@ export interface Spot {
   voteCount: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  /** Populated from Google Places weekday_text when synced (e.g. "Monday: 10:00 AM – 5:30 PM") */
+  openingHoursText?: string[];
 }
 
 export interface User {
@@ -52,6 +54,7 @@ export interface User {
   createdAt: Timestamp;
   reputation: number;
   homeBorough: string | null;
+  favouritesPublic?: boolean;
 }
 
 export interface Submission {

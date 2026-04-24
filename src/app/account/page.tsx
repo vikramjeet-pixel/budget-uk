@@ -204,6 +204,19 @@ function SettingsTab({ user }: { user: any }) {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [favouritesPublic, setFavouritesPublic] = useState(false);
+  const profileUrl = typeof window !== "undefined" ? `${window.location.origin}/u/${user.uid}` : `/u/${user.uid}`;
+
+  useEffect(() => {
+    getDoc(doc(db, "users", user.uid)).then((d) => {
+      if (d.exists()) setFavouritesPublic(!!d.data().favouritesPublic);
+    });
+  }, [user.uid]);
+
+  const toggleFavouritesPublic = async (value: boolean) => {
+    setFavouritesPublic(value);
+    await updateDoc(doc(db, "users", user.uid), { favouritesPublic: value });
+  };
 
   const handleUpdateAuth = async (type: "email" | "password") => {
     setLoading(true);
@@ -238,7 +251,49 @@ function SettingsTab({ user }: { user: any }) {
 
   return (
     <div className="max-w-md flex flex-col gap-10">
-      
+
+      {/* Public profile link */}
+      <div className="flex flex-col gap-3">
+        <h3 className="font-semibold text-[#1c1c1c]">Your Public Profile</h3>
+        <div className="flex items-center gap-2">
+          <input
+            readOnly
+            value={profileUrl}
+            className="flex-1 px-3 py-2 text-[13px] border border-passive rounded-lg bg-[#f7f4ed] text-[#5f5f5d] focus:outline-none"
+          />
+          <button
+            onClick={() => navigator.clipboard.writeText(profileUrl)}
+            className="px-3 py-2 text-[13px] font-medium border border-passive rounded-lg bg-white hover:bg-[#f7f4ed] transition-colors"
+          >
+            Copy
+          </button>
+        </div>
+      </div>
+
+      {/* Favourites visibility */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-[14px] font-semibold text-[#1c1c1c]">Public favourites</span>
+          <span className="text-[13px] text-[#5f5f5d]">Show your saved spots on your public profile</span>
+        </div>
+        <button
+          role="switch"
+          aria-checked={favouritesPublic}
+          onClick={() => toggleFavouritesPublic(!favouritesPublic)}
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+            favouritesPublic ? "bg-[#1c1c1c]" : "bg-passive"
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+              favouritesPublic ? "translate-x-5" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
+
+      <hr className="border-passive" />
+
       {/* Email Update */}
       <div className="flex flex-col gap-3">
         <h3 className="font-semibold text-[#1c1c1c]">Update Email</h3>

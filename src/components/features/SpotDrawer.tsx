@@ -55,6 +55,23 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
     router.push(`/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`);
   };
 
+  const submitFlag = async () => {
+    if (!user || !spot || !flagReason.trim()) return;
+    setFlagBusy(true);
+    try {
+      const token = await user.getIdToken();
+      await fetch("/api/admin/flag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ spotId: spot.id, spotName: spot.name, reason: flagReason.trim() }),
+      });
+      setFlagDone(true);
+      setFlagReason("");
+    } finally {
+      setFlagBusy(false);
+    }
+  };
+
   return (
     <Dialog.Root open={internalOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
@@ -155,8 +172,66 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
                 longitude={spot.location.longitude}
               />
 
+              {/* Flag / report */}
+              <Popover.Root
+                open={flagOpen}
+                onOpenChange={(o) => {
+                  setFlagOpen(o);
+                  if (!o) { setFlagDone(false); setFlagReason(""); }
+                }}
+              >
+                <Popover.Anchor asChild>
+                  <button
+                    onClick={() => {
+                      if (!user) {
+                        const spotPath = `/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`;
+                        router.push(`/login?redirect=${encodeURIComponent(spotPath)}`);
+                        return;
+                      }
+                      setFlagOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 text-[13px] text-[#5f5f5d] hover:text-red-500 transition-colors mx-auto"
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                    Report this spot
+                  </button>
+                </Popover.Anchor>
+                <Popover.Portal>
+                  <Popover.Content
+                    side="top"
+                    sideOffset={8}
+                    className="z-60 w-72 bg-white rounded-xl border border-passive shadow-lg p-4 flex flex-col gap-3"
+                  >
+                    {flagDone ? (
+                      <p className="text-sm text-center text-[#1c1c1c] font-semibold py-2">
+                        Thanks — our team will review this spot.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-[13px] font-semibold text-[#1c1c1c]">Report an issue</p>
+                        <textarea
+                          rows={3}
+                          className="w-full px-3 py-2 text-sm border border-passive rounded-lg bg-[#fcfbf8] focus:outline-none focus:ring-2 focus:ring-[#1c1c1c]/20 resize-none"
+                          placeholder="What's wrong? (e.g. closed, incorrect info…)"
+                          value={flagReason}
+                          onChange={(e) => setFlagReason(e.target.value)}
+                        />
+                        <button
+                          disabled={!flagReason.trim() || flagBusy}
+                          onClick={submitFlag}
+                          className="w-full py-2 bg-[#1c1c1c] text-[#fcfbf8] text-[13px] font-semibold rounded-full hover:bg-[#3a3a3a] disabled:opacity-40 transition-colors"
+                        >
+                          {flagBusy ? "Sending…" : "Submit report"}
+                        </button>
+                      </>
+                    )}
+                    <Popover.Arrow className="fill-white stroke-passive" />
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+
               {/* View full page */}
-              <div className="pt-6 pb-8 text-center mt-auto">
+              <div className="pb-8 text-center">
                 <button
                   onClick={viewFullPage}
                   className="text-[14px] font-medium text-[#1c1c1c] underline underline-offset-4 hover:text-[#5f5f5d] transition-colors"
