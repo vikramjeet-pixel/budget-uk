@@ -33,7 +33,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
   
   // Track viewport boundary dynamically passing native coordinate limitations heavily into supercluster wrappers
   const [zoom, setZoom] = useState(12);
-  const [bounds, setBounds] = useState<number[]>([-0.510375, 51.28676, 0.334015, 51.69187]);
+  const [bounds, setBounds] = useState<[number, number, number, number]>([-0.510375, 51.28676, 0.334015, 51.69187]);
 
   // Construct raw GeoJSON Points mapped securely mirroring your strict spot interface safely
   const points = useMemo(() => spots.map(spot => ({
@@ -121,7 +121,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
 
         {clusters.map(cluster => {
           const [longitude, latitude] = cluster.geometry.coordinates;
-          const { cluster: isCluster, point_count: pointCount, spot, spotId } = cluster.properties;
+          const { cluster: isCluster, point_count: pointCount, spot, spotId } = cluster.properties as any;
 
           // Clustered State natively rolling up bounds dynamically
           if (isCluster) {
@@ -133,7 +133,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
                 onClick={e => {
                   e.originalEvent.stopPropagation();
                   // Jump accurately directly enclosing the specific underlying targets
-                  const expansionZoom = Math.min(supercluster.getClusterExpansionZoom(cluster.id as number), 20);
+                  const expansionZoom = Math.min(supercluster?.getClusterExpansionZoom(cluster.id as number) ?? 20, 20);
                   mapRef.current?.flyTo({ center: [longitude, latitude], zoom: expansionZoom, duration: 500 });
                 }}
               >

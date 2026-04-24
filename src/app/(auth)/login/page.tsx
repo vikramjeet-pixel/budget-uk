@@ -34,7 +34,7 @@ export default function LoginPage() {
     try {
       await signInWithEmail(data.email, data.password);
       router.push("/");
-    } catch (error: any) {
+    } catch (error) {
       setAuthError("Failed to sign in. Please check your credentials.");
       console.error(error);
     }
@@ -45,7 +45,7 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       router.push("/");
-    } catch (error: any) {
+    } catch (error) {
       setAuthError("Google sign-in failed. Please try again.");
       console.error(error);
     }
@@ -105,7 +105,7 @@ export default function LoginPage() {
       </Button>
 
       <p className="mt-8 text-center text-[#5f5f5d] text-[14px]">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/signup" className="text-[#1c1c1c] underline underline-offset-4 hover:text-opacity-80">
           Sign up
         </Link>

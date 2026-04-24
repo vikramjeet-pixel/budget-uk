@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { collection, query, where, onSnapshot, limit, QueryConstraint } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
+import type { Spot } from "@/types";
 
 interface UseSpotsOptions {
   categories?: string[];
@@ -13,13 +14,11 @@ interface UseSpotsOptions {
 }
 
 export function useSpots(options?: UseSpotsOptions) {
-  const [spots, setSpots] = useState<any[]>([]);
+  const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    
     // Base query: get up to 200 live spots
     const constraints: QueryConstraint[] = [
       where("status", "==", options?.status || "live"),
@@ -34,10 +33,7 @@ export function useSpots(options?: UseSpotsOptions) {
     const q = query(collection(db, "spots"), ...constraints);
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      let data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      let data: Spot[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Spot));
 
       // --- CLIENT-SIDE FILTERING REFINEMENT ---
       // We do this to handle multi-field "OR" logic and "in" limits beyond Firestore's capabilities.

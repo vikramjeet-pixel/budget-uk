@@ -15,14 +15,14 @@ import { Button } from "@/components/ui/button";
 export default function EditSubmissionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = React.use(params);
-  const { user, loading: authLoading } = useAuthContext();
+  const { user, role, loading: authLoading } = useAuthContext();
   const { updateSubmission, loading: actionLoading } = useAdminActions();
   const [submission, setSubmission] = React.useState<Submission | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   // Role Protection
   React.useEffect(() => {
-    if (!authLoading && (!user || (user.role !== "admin" && user.role !== "moderator"))) {
+    if (!authLoading && (!user || (role !== "admin" && role !== "moderator"))) {
       router.push("/");
     }
   }, [user, authLoading, router]);

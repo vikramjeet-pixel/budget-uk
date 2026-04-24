@@ -22,14 +22,14 @@ import { cn } from "@/lib/utils";
 
 export default function ModeratorPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuthContext();
+  const { user, role, loading: authLoading } = useAuthContext();
   const { submissions, loading: dataLoading } = useSubmissions("pending");
   const { approveSubmission, rejectSubmission, loading: actionLoading } = useAdminActions();
   const [searchTerm, setSearchTerm] = React.useState("");
 
   // Role Protection
   React.useEffect(() => {
-    if (!authLoading && (!user || (user.role !== "admin" && user.role !== "moderator"))) {
+    if (!authLoading && (!user || (role !== "admin" && role !== "moderator"))) {
       router.push("/");
     }
   }, [user, authLoading, router]);
@@ -39,7 +39,7 @@ export default function ModeratorPage() {
     s.borough.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (authLoading || (!user || (user.role !== "admin" && user.role !== "moderator"))) {
+  if (authLoading || (!user || (role !== "admin" && role !== "moderator"))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcfbf8]">
         <div className="w-8 h-8 border-4 border-[var(--border-passive)] border-t-[#1c1c1c] rounded-full animate-spin" />

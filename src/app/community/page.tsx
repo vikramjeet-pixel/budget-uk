@@ -106,7 +106,7 @@ function SubmissionCard({ submission, onVote, isVoting, hasVoted }: {
           
           <div className="flex flex-wrap gap-3">
             <Button 
-              variant="secondary"
+              variant="ghost"
               onClick={() => onVote(submission.id, "yes")}
               disabled={isVoting || hasVoted}
               className={cn(
