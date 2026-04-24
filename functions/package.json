@@ -1,0 +1,29 @@
+{
+  "name": "budgetuk-functions",
+  "description": "Cloud Functions for BudgetUK",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "test": "jest --forceExit --detectOpenHandles",
+    "test:watch": "jest --watchAll --forceExit",
+    "lint": "eslint --ext .ts src/"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "geofire-common": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "private": true
+}

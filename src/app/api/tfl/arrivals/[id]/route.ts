@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { getArrivalsAtStop } from "@/lib/tfl";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -11,36 +12,16 @@ export async function GET(
   }
 
   try {
-    const tflUrl = `https://api.tfl.gov.uk/StopPoint/${id}/Arrivals`;
-
-    const response = await fetch(tflUrl, {
-      next: { revalidate: 30 } // Cache for 30 seconds (real-time data)
-    });
-
-    if (!response.ok) {
-      throw new Error(`TfL API responded with ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // Transform and clean
-    const arrivals = data
-      .map((item: any) => ({
-        lineName: item.lineName,
-        destinationName: item.destinationName,
-        timeToStation: Math.floor(item.timeToStation / 60), // Convert to minutes
-      }))
-      // Sort by time ascending
-      .sort((a: any, b: any) => a.timeToStation - b.timeToStation)
-      // Limit to 5
-      .slice(0, 5);
-
+    const raw = await getArrivalsAtStop(id);
+    // Convert seconds → minutes for the client; keep top 5.
+    const arrivals = raw.slice(0, 5).map(a => ({
+      ...a,
+      timeToStation: Math.floor(a.timeToStation / 60),
+    }));
     return NextResponse.json({ arrivals });
-  } catch (error: any) {
-    console.error("TfL Arrivals Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch arrivals", details: error.message },
-      { status: 500 }
-    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("TfL arrivals error:", message);
+    return NextResponse.json({ error: "Failed to fetch arrivals" }, { status: 500 });
   }
 }

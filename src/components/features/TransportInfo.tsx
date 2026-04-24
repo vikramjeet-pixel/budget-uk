@@ -4,24 +4,8 @@ import * as React from "react";
 import { useNearestStation } from "@/hooks/useNearestStation";
 import { useArrivals } from "@/hooks/useArrivals";
 import { cn } from "@/lib/utils";
-import { MapPin, ChevronDown, ChevronUp, Loader2, Train } from "lucide-react";
-
-const LINE_COLORS: Record<string, string> = {
-  "Bakerloo": "bg-[#b36305]",
-  "Central": "bg-[#e32017]",
-  "Circle": "bg-[#ffd300]",
-  "District": "bg-[#00782a]",
-  "Hammersmith & City": "bg-[#f3a9bb]",
-  "Jubilee": "bg-[#a0a5a9]",
-  "Metropolitan": "bg-[#9b0056]",
-  "Northern": "bg-[#000000]",
-  "Piccadilly": "bg-[#003688]",
-  "Victoria": "bg-[#0098d4]",
-  "Waterloo & City": "bg-[#95cece]",
-  "DLR": "bg-[#00afad]",
-  "London Overground": "bg-[#ef7b10]",
-  "Elizabeth Line": "bg-[#9364cc]",
-};
+import { ChevronDown, ChevronUp, Loader2, Train } from "lucide-react";
+import { lineStyle } from "@/lib/tfl/colours";
 
 function ArrivalsList({ stationId }: { stationId: string }) {
   const { arrivals, loading, error } = useArrivals(stationId);
@@ -46,7 +30,7 @@ function ArrivalsList({ stationId }: { stationId: string }) {
       {arrivals.map((arr, idx) => (
         <div key={idx} className="flex items-center justify-between px-4 py-2 hover:bg-[#fcfbf8] transition-colors border-b border-[var(--border-passive)] last:border-0">
           <div className="flex items-center gap-2">
-            <div className={cn("w-1.5 h-6 rounded-full", LINE_COLORS[arr.lineName] || "bg-[#1c1c1c]")} />
+            <div className="w-1.5 h-6 rounded-full" style={{ backgroundColor: lineStyle(arr.lineName).backgroundColor }} />
             <div className="flex flex-col">
               <span className="text-[13px] font-bold text-[#1c1c1c]">{arr.lineName}</span>
               <span className="text-[11px] text-[#5f5f5d] truncate max-w-[140px]">to {arr.destinationName}</span>

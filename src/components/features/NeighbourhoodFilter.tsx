@@ -66,7 +66,7 @@ export function NeighbourhoodFilter() {
     <div className="flex flex-wrap items-center gap-2 py-2">
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#f7f4ed] border border-[var(--border-passive)] rounded-[9999px] text-[14px] text-[#1c1c1c] shadow-[var(--inset-dark)] hover:bg-[var(--border-passive)] transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#f7f4ed] border border-passive rounded-pill text-[14px] text-[#1c1c1c] shadow-inset-dark hover:bg-passive transition-colors">
             <span>Neighbourhoods</span>
             <ChevronDown className={cn("w-4 h-4 transition-transform", open && "rotate-180")} />
           </button>
@@ -76,7 +76,7 @@ export function NeighbourhoodFilter() {
           <Popover.Content
             align="start"
             sideOffset={8}
-            className="z-50 w-[320px] max-h-[480px] overflow-y-auto bg-[#f7f4ed] border border-[var(--border-passive)] rounded-[12px] p-4 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+            className="z-50 w-[320px] max-h-[480px] overflow-y-auto bg-[#f7f4ed] border border-passive rounded-lg p-4 shadow-xl animate-in fade-in zoom-in-95 duration-200"
           >
             <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
@@ -102,7 +102,7 @@ export function NeighbourhoodFilter() {
                         "w-4 h-4 rounded border flex items-center justify-center transition-colors",
                         selectedBoroughs.includes(borough.name) 
                           ? "bg-[#1c1c1c] border-[#1c1c1c]" 
-                          : "border-[var(--border-passive)] bg-white group-hover:border-[#1c1c1c]"
+                          : "border-passive bg-white group-hover:border-[#1c1c1c]"
                       )}>
                         {selectedBoroughs.includes(borough.name) && <Check className="w-3 h-3 text-white" />}
                       </div>
@@ -120,7 +120,7 @@ export function NeighbourhoodFilter() {
                             "w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors",
                             selectedNbhs.includes(nbh) 
                               ? "bg-[#1c1c1c] border-[#1c1c1c]" 
-                              : "border-[var(--border-passive)] bg-white group-hover:border-[#1c1c1c]"
+                              : "border-passive bg-white group-hover:border-[#1c1c1c]"
                           )}>
                             {selectedNbhs.includes(nbh) && <Check className="w-2.5 h-2.5 text-white" />}
                           </div>
@@ -146,7 +146,7 @@ export function NeighbourhoodFilter() {
         {selectedBoroughs.map((bor) => (
           <div 
             key={`bor-${bor}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c1c] text-[#f7f4ed] rounded-[9999px] text-[12px] font-medium animate-in fade-in slide-in-from-left-2"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c1c] text-[#f7f4ed] rounded-pill text-[12px] font-medium animate-in fade-in slide-in-from-left-2"
           >
             <span>{bor}</span>
             <button onClick={() => toggleBorough(bor)} className="hover:text-white/80 transition-colors">
@@ -157,7 +157,7 @@ export function NeighbourhoodFilter() {
         {selectedNbhs.map((nbh) => (
           <div 
             key={`nbh-${nbh}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f4ed] border border-[var(--border-passive)] text-[#1c1c1c] rounded-[9999px] text-[12px] font-medium shadow-sm animate-in fade-in slide-in-from-left-2"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f4ed] border border-passive text-[#1c1c1c] rounded-pill text-[12px] font-medium shadow-sm animate-in fade-in slide-in-from-left-2"
           >
             <span>{nbh}</span>
             <button onClick={() => toggleNbh(nbh)} className="hover:text-[#5f5f5d] transition-colors">

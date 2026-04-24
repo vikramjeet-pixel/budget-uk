@@ -7,9 +7,15 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
 import { SpotCard } from "@/components/features/SpotCard";
-import { MapPin, Bookmark, ExternalLink } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { TransportInfo } from "@/components/features/TransportInfo";
+import { NearestStation } from "@/components/features/NearestStation";
+import { SaveSpotButton } from "@/components/features/SaveSpotButton";
 import * as geofire from "geofire-common";
+
+// Pre-build top 50 spots; all other slugs render on-demand and are cached for 1 hour.
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface PageProps {
   params: Promise<{
@@ -51,7 +57,7 @@ async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
   }
 
   const snapshots = await Promise.all(promises);
-  const matchingDocs: any[] = [];
+  const matchingDocs: (Spot & { distance: number })[] = [];
 
   for (const snap of snapshots) {
     for (const doc of snap.docs) {
@@ -65,11 +71,7 @@ async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
       const distanceInM = distanceInKm * 1000;
 
       if (distanceInM <= radiusInM) {
-        matchingDocs.push({
-          id: doc.id,
-          distance: distanceInM,
-          ...data,
-        });
+        matchingDocs.push({ id: doc.id, distance: distanceInM, ...data } as Spot & { distance: number });
       }
     }
   }
@@ -144,7 +146,7 @@ export default async function SpotPage({ params }: PageProps) {
           <div className="flex-grow lg:w-2/3 flex flex-col gap-8">
             
             {/* Hero Image */}
-            <div className="w-full aspect-video rounded-[12px] border border-[var(--border-passive)] overflow-hidden bg-[var(--border-passive)] relative shadow-sm">
+            <div className="w-full aspect-video rounded-[12px] border border-passive overflow-hidden bg-passive relative shadow-sm">
               {spot.photoUrl ? (
                 <Image 
                   src={spot.photoUrl} 
@@ -173,7 +175,7 @@ export default async function SpotPage({ params }: PageProps) {
                   </Badge>
                 </div>
               </div>
-              <hr className="border-[var(--border-passive)]" />
+              <hr className="border-passive" />
             </div>
 
             {/* Description */}
@@ -186,7 +188,7 @@ export default async function SpotPage({ params }: PageProps) {
 
             {/* Local Tips */}
             {spot.tips && spot.tips.length > 0 && (
-              <div className="bg-[#f7f4ed] p-6 rounded-xl border border-[var(--border-passive)] shadow-[var(--inset-dark)]">
+              <div className="bg-[#f7f4ed] p-6 rounded-xl border border-passive shadow-inset-dark">
                 <h3 className="text-[18px] font-semibold text-[#1c1c1c] mb-4">Local Tips</h3>
                 <ul className="space-y-3">
                   {spot.tips.map((tip, idx) => (
@@ -226,10 +228,7 @@ export default async function SpotPage({ params }: PageProps) {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <Button variant="primary" className="w-full justify-center py-6 h-auto text-lg cursor-not-allowed opacity-70">
-                    <Bookmark className="w-5 h-5 mr-3" />
-                    Save this spot
-                  </Button>
+                  <SaveSpotButton spotId={spot.id!} />
                   <a 
                     href={`https://www.google.com/maps/dir/?api=1&destination=${spot.location.latitude},${spot.location.longitude}`}
                     target="_blank"
@@ -248,6 +247,15 @@ export default async function SpotPage({ params }: PageProps) {
                   </span>
                 </div>
               </Card>
+
+              {/* Nearest station */}
+              <div className="flex flex-col gap-3">
+                <h3 className="t-h3 font-semibold text-[#1c1c1c] px-1">Getting here</h3>
+                <NearestStation
+                  latitude={spot.location.latitude}
+                  longitude={spot.location.longitude}
+                />
+              </div>
 
               {/* Nearby Spots */}
               {nearbySpots.length > 0 && (

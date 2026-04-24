@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,10 +17,12 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
   const [authError, setAuthError] = React.useState("");
-  
+
   const {
     register,
     handleSubmit,
@@ -33,7 +35,7 @@ export default function LoginPage() {
     setAuthError("");
     try {
       await signInWithEmail(data.email, data.password);
-      router.push("/");
+      router.push(redirect);
     } catch (error) {
       setAuthError("Failed to sign in. Please check your credentials.");
       console.error(error);
@@ -44,7 +46,7 @@ export default function LoginPage() {
     setAuthError("");
     try {
       await signInWithGoogle();
-      router.push("/");
+      router.push(redirect);
     } catch (error) {
       setAuthError("Google sign-in failed. Please try again.");
       console.error(error);
@@ -52,7 +54,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[400px] flex-col px-4 pt-[96px] pb-16">
+    <div className="mx-auto flex w-full max-w-100 flex-col px-4 pt-24 pb-16">
       <h1 className="t-h2 text-[#1c1c1c] text-center mb-8">Welcome back</h1>
       
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -90,9 +92,9 @@ export default function LoginPage() {
       </form>
       
       <div className="my-6 flex items-center">
-        <div className="flex-1 border-t border-[var(--border-passive)]" />
+        <div className="flex-1 border-t border-passive" />
         <span className="px-4 text-[14px] text-[#5f5f5d]">or</span>
-        <div className="flex-1 border-t border-[var(--border-passive)]" />
+        <div className="flex-1 border-t border-passive" />
       </div>
 
       <Button 
@@ -111,5 +113,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<div className="flex h-[50vh] items-center justify-center text-[#5f5f5d]">Loading...</div>}>
+      <LoginForm />
+    </React.Suspense>
   );
 }

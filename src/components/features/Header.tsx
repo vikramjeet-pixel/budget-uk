@@ -2,13 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import { Button, IconButton } from "@/components/ui/button";
 import { useScroll } from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { signOutUser } from "@/lib/firebase/auth";
+import { useRouter, usePathname } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const navLinks = [
   { name: "Map", href: "/map" },
@@ -24,6 +26,16 @@ export function Header() {
   const scrolled = useScroll(10);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { user, loading } = useAuthContext();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [searchInput, setSearchInput] = React.useState("");
+  const debouncedSearch = useDebounce(searchInput, 250);
+  const isOnSpots = pathname === "/spots";
+
+  React.useEffect(() => {
+    if (!debouncedSearch.trim()) return;
+    router.push(`/spots?q=${encodeURIComponent(debouncedSearch)}`);
+  }, [debouncedSearch, router]);
 
   return (
     <header
@@ -54,6 +66,19 @@ export function Header() {
             </ul>
           </nav>
         </div>
+
+        {!isOnSpots && (
+          <div className="hidden md:flex flex-1 max-w-65 mx-6 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5f5f5d]" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              placeholder="Search spots…"
+              className="w-full bg-[#ede9e1] border border-passive rounded-full pl-8 pr-3 py-1.5 text-[13px] outline-none focus:border-[#1c1c1c] focus:bg-[#f7f4ed] transition-all text-[#1c1c1c] placeholder:text-[#5f5f5d]"
+            />
+          </div>
+        )}
 
         <div className="hidden md:flex items-center space-x-4">
           {loading ? (

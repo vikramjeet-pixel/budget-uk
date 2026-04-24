@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Popover from "@radix-ui/react-popover";
 import { useFavourite } from "@/hooks/useFavourite";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
+import { MapPin, ArrowRight, Bookmark, BookmarkCheck, Flag } from "lucide-react";
+import { NearestStation } from "@/components/features/NearestStation";
 import type { Spot } from "@/types";
 
 interface SpotDrawerProps {
@@ -20,6 +22,10 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
   const { user } = useAuthContext();
   const { isSaved, toggleSave } = useFavourite(spot?.id);
   const [internalOpen, setInternalOpen] = useState(false);
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
+  const [flagBusy, setFlagBusy] = useState(false);
+  const [flagDone, setFlagDone] = useState(false);
 
   useEffect(() => {
     setInternalOpen(!!spot);
@@ -31,7 +37,8 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
 
   const handleSaveClick = async () => {
     if (!user) {
-      router.push("/login");
+      const spotPath = `/london/${encodeURIComponent(spot!.neighbourhood.toLowerCase())}/${spot!.slug}`;
+      router.push(`/login?redirect=${encodeURIComponent(spotPath)}`);
       return;
     }
     await toggleSave();
@@ -54,7 +61,7 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
         <Dialog.Overlay className="fixed inset-0 z-40 bg-transparent" />
 
         <Dialog.Content
-          className="fixed z-50 flex flex-col bg-[#fcfbf8] shadow-[var(--focus-shadow)] outline-none
+          className="fixed z-50 flex flex-col bg-[#fcfbf8] shadow-focus outline-none
                      w-full bottom-0 top-[20vh] rounded-t-2xl px-6 py-6
                      md:right-0 md:top-0 md:bottom-0 md:h-full md:w-120 md:rounded-none overflow-y-auto"
           onPointerDownOutside={(e) => {
@@ -63,7 +70,7 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
           }}
         >
           {/* Mobile grab handle */}
-          <div className="w-12 h-1.5 bg-[var(--border-passive)] rounded-full mx-auto mb-4 md:hidden" />
+          <div className="w-12 h-1.5 bg-passive rounded-full mx-auto mb-4 md:hidden" />
 
           {spot && (
             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 md:slide-in-from-right-8 duration-300">
@@ -91,7 +98,7 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
               </div>
 
               {/* Hero photo */}
-              <div className="w-full h-48 md:h-64 rounded-[12px] border border-[var(--border-passive)] overflow-hidden bg-[var(--border-passive)] flex-shrink-0 relative">
+              <div className="w-full h-48 md:h-64 rounded-lg border border-passive overflow-hidden bg-passive shrink-0 relative">
                 {spot.photoUrl ? (
                   <img src={spot.photoUrl} alt={spot.name} className="w-full h-full object-cover" />
                 ) : (
@@ -115,7 +122,7 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
                 </div>
               </div>
 
-              <hr className="border-[var(--border-passive)]" />
+              <hr className="border-passive" />
 
               {/* Actions */}
               <Button
@@ -142,11 +149,11 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
                 </div>
               )}
 
-              {/* Nearest station placeholder */}
-              <div className="flex items-center gap-2 text-[14px] text-[#5f5f5d] bg-[#fcfbf8] px-3 py-2 rounded-md border border-interactive w-max">
-                <span className="text-[16px]">🚶‍♂️</span>
-                <span>approx 10 min walk from central station</span>
-              </div>
+              {/* Nearest station — live data */}
+              <NearestStation
+                latitude={spot.location.latitude}
+                longitude={spot.location.longitude}
+              />
 
               {/* View full page */}
               <div className="pt-6 pb-8 text-center mt-auto">

@@ -4,17 +4,18 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useAuthContext } from "@/components/providers/AuthProvider";
-import { db, storage, auth } from "@/lib/firebase/client";
+import { db } from "@/lib/firebase/client";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { uploadAvatar } from "@/lib/firebase/storage";
 import { updateEmail, updatePassword, updateProfile, deleteUser } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
+import { FavouritesTab } from "@/app/account/favourites/page";
 
 function AccountContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading, role } = useAuthContext();
+  const { user, loading } = useAuthContext();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile");
 
   useEffect(() => {
@@ -37,7 +38,7 @@ function AccountContent() {
       <h1 className="t-h2 text-[#1c1c1c] mb-8">Account Configuration</h1>
       
       <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-8">
-        <Tabs.List className="flex border-b border-[var(--border-passive)] overflow-x-auto">
+        <Tabs.List className="flex border-b border-passive overflow-x-auto">
           {["profile", "favourites", "submissions", "settings"].map((tab) => (
             <Tabs.Trigger 
               key={tab}
@@ -54,9 +55,7 @@ function AccountContent() {
         </Tabs.Content>
 
         <Tabs.Content value="favourites" className="focus:outline-none">
-          <div className="py-8 text-center text-[#5f5f5d]">
-            <p>Your favourites list is currently empty.</p>
-          </div>
+          <FavouritesTab />
         </Tabs.Content>
 
         <Tabs.Content value="submissions" className="focus:outline-none">
@@ -153,7 +152,7 @@ function ProfileTab({ user }: { user: any }) {
   return (
     <div className="max-w-md flex flex-col gap-6">
       <div className="flex items-center gap-6">
-        <label className="relative cursor-pointer group flex items-center justify-center w-24 h-24 rounded-full bg-[var(--border-passive)] overflow-hidden border border-[var(--border-passive)]">
+        <label className="relative cursor-pointer group flex items-center justify-center w-24 h-24 rounded-full bg-passive overflow-hidden border border-passive">
           <img 
             src={user.photoURL || `https://ui-avatars.com/api/?name=${displayName || 'U'}&background=1c1c1c&color=fcfbf8`} 
             alt="Avatar" 
@@ -264,7 +263,7 @@ function SettingsTab({ user }: { user: any }) {
         </p>
       )}
 
-      <hr className="border-[var(--border-passive)]" />
+      <hr className="border-passive" />
 
       {/* Danger Zone */}
       <div className="flex flex-col gap-3 mt-4">

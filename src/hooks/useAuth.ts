@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/client";
 import type { UserRole } from "@/types";
@@ -18,9 +18,14 @@ export function useAuth() {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    // onIdTokenChanged fires on sign-in/out and whenever the token is refreshed,
+    // allowing server components to read a fresh token from the cookie.
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
       if (user) {
         try {
+          const token = await user.getIdToken();
+          document.cookie = `__fb_token=${token}; path=/; max-age=3600; SameSite=Strict`;
+
           const userDoc = await getDoc(doc(db, "users", user.uid));
           const role = userDoc.exists() ? (userDoc.data().role as UserRole) : "user";
           setAuthState({ user, loading: false, role });
@@ -29,6 +34,7 @@ export function useAuth() {
           setAuthState({ user, loading: false, role: "user" });
         }
       } else {
+        document.cookie = "__fb_token=; path=/; max-age=0";
         setAuthState({ user: null, loading: false, role: null });
       }
     });

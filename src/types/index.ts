@@ -15,7 +15,7 @@ export type Category =
 
 export type PriceTier = "free" | "£" | "££" | "£££" | "££££";
 
-export type SpotStatus = "live" | "pending" | "rejected";
+export type SpotStatus = "live" | "pending" | "rejected" | "removed";
 
 export type UserRole = "user" | "moderator" | "admin";
 
@@ -86,5 +86,14 @@ export interface Favourite {
 }
 
 export interface Vote {
+  createdAt: Timestamp;
+}
+
+export interface Report {
+  id?: string;
+  spotId: string;
+  spotName: string;
+  reportedBy: string;
+  reason: string;
   createdAt: Timestamp;
 }

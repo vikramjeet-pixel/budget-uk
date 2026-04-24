@@ -8,7 +8,7 @@ interface UseSpotsOptions {
   neighbourhood?: string;
   neighbourhoods?: string[];
   boroughs?: string[];
-  priceTier?: string;
+  priceTiers?: string[];
   tags?: string[];
   status?: string;
 }
@@ -50,8 +50,8 @@ export function useSpots(options?: UseSpotsOptions) {
         });
       }
 
-      if (options?.priceTier) {
-        data = data.filter(spot => spot.priceTier === options.priceTier);
+      if (options?.priceTiers && options.priceTiers.length > 0) {
+        data = data.filter(spot => options.priceTiers!.includes(spot.priceTier));
       }
 
       if (options?.tags && options.tags.length > 0) {
@@ -75,7 +75,7 @@ export function useSpots(options?: UseSpotsOptions) {
     options?.neighbourhood,
     options?.neighbourhoods ? JSON.stringify(options.neighbourhoods) : undefined,
     options?.boroughs ? JSON.stringify(options.boroughs) : undefined,
-    options?.priceTier,
+    options?.priceTiers ? JSON.stringify(options.priceTiers) : undefined,
     options?.status,
     options?.tags ? JSON.stringify(options.tags) : undefined
   ]);

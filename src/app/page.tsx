@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { SpotCard } from "@/components/features/SpotCard";
 import { CategoryPills } from "@/components/features/CategoryPills";
 import { NeighbourhoodFilter } from "@/components/features/NeighbourhoodFilter";
+import { PriceDietaryFilter } from "@/components/features/PriceDietaryFilter";
 import { LocationToast } from "@/components/features/LocationToast";
 import { SpotDrawer } from "@/components/features/SpotDrawer";
 
@@ -25,6 +26,8 @@ function HomePageContent() {
   const currentCats = searchParams.get("cat")?.split(",").filter(Boolean) || [];
   const selectedNbhs = searchParams.get("nbh")?.split(",").filter(Boolean) || [];
   const selectedBors = searchParams.get("bor")?.split(",").filter(Boolean) || [];
+  const selectedPrices = searchParams.get("price")?.split(",").filter(Boolean) || [];
+  const selectedTags = searchParams.get("tags")?.split(",").filter(Boolean) || [];
   const isNearMe = searchParams.get("nearby") === "true";
 
   // Watch boundary tracking location natively hitting browser DOM payloads
@@ -53,10 +56,12 @@ function HomePageContent() {
   }, [isNearMe, userLocation, showLocationToast]);
 
   const { spots: standardSpots, loading: standardLoading } = useSpots(
-    !isNearMe ? { 
-      categories: currentCats, 
-      neighbourhoods: selectedNbhs, 
-      boroughs: selectedBors 
+    !isNearMe ? {
+      categories: currentCats,
+      neighbourhoods: selectedNbhs,
+      boroughs: selectedBors,
+      priceTiers: selectedPrices,
+      tags: selectedTags,
     } : { status: "paused_hook" }
   );
 
@@ -109,7 +114,10 @@ function HomePageContent() {
         {/* Header & Categories Sticky Block */}
         <div className="sticky top-0 z-20 bg-gradient-to-b from-[#fcfbf8] via-[#fcfbf8] to-transparent pt-4 pb-4 px-4 backdrop-blur-sm flex flex-col gap-1">
           <CategoryPills />
-          {currentCats.length === 0 && <NeighbourhoodFilter />}
+          <div className="flex flex-wrap gap-2">
+            <NeighbourhoodFilter />
+            <PriceDietaryFilter />
+          </div>
         </div>
 
         {/* Spot Feed Map */}

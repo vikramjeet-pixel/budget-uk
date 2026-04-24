@@ -25,9 +25,10 @@ export function useArrivals(stationId?: string) {
         const data = await response.json();
         setArrivals(data.arrivals || []);
         setError(null);
-      } catch (err: any) {
-        console.error("useArrivals error:", err);
-        setError(err.message);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("useArrivals error:", message);
+        setError(message);
       } finally {
         setLoading(false);
       }

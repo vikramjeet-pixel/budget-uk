@@ -6,6 +6,7 @@ interface Station {
   id: string;
   name: string;
   modes: string[];
+  lines: { id: string; name: string }[];
   distance: number;
 }
 
@@ -26,9 +27,10 @@ export function useNearestStation(lat?: number, lon?: number) {
         const data = await response.json();
         setStations(data.stations || []);
         setError(null);
-      } catch (err: any) {
-        console.error("useNearestStation error:", err);
-        setError(err.message);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("useNearestStation error:", message);
+        setError(message);
       } finally {
         setLoading(false);
       }

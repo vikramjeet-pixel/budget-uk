@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/components/providers/AuthProvider";
 
 export function useFavourite(spotId: string | undefined) {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,8 @@ export function useFavourite(spotId: string | undefined) {
          await deleteDoc(ref);
       } else {
          await setDoc(ref, {
-           savedAt: serverTimestamp()
+           savedAt: serverTimestamp(),
+           note: null,
          });
       }
       return true;
