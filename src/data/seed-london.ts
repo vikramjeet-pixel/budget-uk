@@ -13,6 +13,7 @@ export const spots = [
     googlePlaceId: null,
     description: "The original Franco Manca sourdough pizza spot located in Brixton Market.",
     tips: ["Get there before 7pm to avoid massive queues in the market.", "The No. 2 pizza is a classic."],
+    website: "https://www.francomanca.com",
   },
   {
     name: "Beigel Bake Brick Lane",
@@ -27,6 +28,7 @@ export const spots = [
     googlePlaceId: null,
     description: "World-famous 24/7 bagel shop known for its thick hot salt beef bagels coated in stinging mustard.",
     tips: ["It's cash only sometimes, so bring change just in case.", "The queue moves incredibly fast."],
+    website: "https://www.beigelbake.com",
   },
   {
     name: "Tayyabs",
@@ -41,6 +43,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Legendary East London Punjabi dining institution notorious for fierce, sizzling lamb chops.",
     tips: ["It is BYOB, so bring your own drinks.", "Book ahead or prepare to wait."],
+    website: "https://www.tayyabs.co.uk",
   },
   {
     name: "Dishoom Shoreditch",
@@ -55,6 +58,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Iconic Bombay cafe style dining offering incredible black daal and the finest bacon naan rolls.",
     tips: ["Breakfast is the best value queue-free experience to enjoy Dishoom.", "Unlimited chai refills."],
+    website: "https://www.dishoom.com/shoreditch/",
   },
   {
     name: "Padella",
@@ -69,6 +73,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Extremely popular fresh pasta bar sitting on the edge of Borough Market.",
     tips: ["Download the WalkUp app to join the queue virtually from the pub next door.", "The pici cacio e pepe is legendary."],
+    website: "https://www.padella.london",
   },
   {
     name: "Kossoff's",
@@ -111,6 +116,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Next-level fried chicken served alongside sour cocktails in an electric atmosphere.",
     tips: ["The disco wings are a must-order.", "They have halal chicken options upon request."],
+    website: "https://www.chicknsours.co.uk",
   },
   {
     name: "Kati Roll Company",
@@ -139,6 +145,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Fluffy, pillowy Taiwanese steamed buns that revolutionized the London dining scene.",
     tips: ["The classic pork bao is iconic.", "Lines form early before they even open the doors."],
+    website: "https://baolondon.com",
   },
 
   // --- GROCERIES ---
@@ -155,6 +162,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Massive budget supermarket offering rock-bottom prices on essentials and a highly rated bakery section.",
     tips: ["The middle aisle is famous for rotating bizarre and useful tools.", "Bakery items are incredibly cheap and fresh in the morning."],
+    website: "https://www.lidl.co.uk",
   },
   {
     name: "Aldi Camden",
@@ -169,6 +177,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Highly competitive discount supermarket challenging mainstream UK prices heavily over fresh produce.",
     tips: ["Bring your own bags, the checkout speed is furiously fast."],
+    website: "https://www.aldi.co.uk",
   },
   {
     name: "Iceland Holloway",
@@ -211,6 +220,7 @@ export const spots = [
     googlePlaceId: null,
     description: "A monumental Asian superstore supplying both the public and restaurants across London with massive quantities of authentic ingredients.",
     tips: ["Grab fresh dim sum at the bakery right by the entrance.", "Excellent parking available."],
+    website: "https://www.wingyip.com",
   },
 
   // --- GYMS ---
@@ -227,6 +237,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Massive warehouse-style 24-hour gym packed heavily with free weights and cardio equipment.",
     tips: ["Peak hours are brutally busy between 5 PM and 7 PM.", "Check the app for live attendance numbers before going."],
+    website: "https://www.puregym.com",
   },
   {
     name: "The Gym Group Vauxhall",
@@ -241,6 +252,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Affordable, no-contract workout space operating 24/7 with excellent baseline equipment.",
     tips: ["Super convenient location right by the station.", "Bring your own padlock for the lockers."],
+    website: "https://www.thegymgroup.com",
   },
   {
     name: "Outdoor Gym Hampstead Heath",
@@ -269,6 +281,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Well-maintained set of static bars utilized heavily by local street-workout groups.",
     tips: ["Often busy on weekends, but people rotate sharing the bars very respectfully."],
+    website: "https://www.parkforever.com/finsbury",
   },
   {
     name: "Burgess Park Outdoor Gym",
@@ -283,6 +296,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Modern static outdoor workout rig situated neatly near the edge of the large lake path.",
     tips: ["Incredible spot for a sunset workout looking out over the water."],
+    website: "https://www.southwark.gov.uk/burgess-park",
   },
 
   // --- WORKSPACES ---
@@ -299,6 +313,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Best for 8-hour study sessions. The absolute gold standard for free quiet study and deep work in London. Massive desks and total silence in the reading rooms.",
     tips: ["You need to register for a Reader Pass to access the hardcore quiet rooms.", "The public spaces get full very quickly."],
+    website: "https://www.bl.uk",
   },
   {
     name: "Barbican Centre Open Spaces",
@@ -313,6 +328,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Ideal for creative coworking and casual meetings. Vast brutalist complex featuring multiple café areas and large tables that are entirely free to use.",
     tips: ["A bit noisy compared to libraries, great for creative work.", "Finding a plug socket can be a competitive sport."],
+    website: "https://www.barbican.org.uk",
   },
   {
     name: "Wellcome Collection Reading Room",
@@ -327,6 +343,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Best for quiet, focused work in an inspiring cultural setting. A gorgeous room combining a library, museum, and social space.",
     tips: ["Very strict on no-food policies.", "You can literally sit on the giant stair cushions to work."],
+    website: "https://wellcomecollection.org",
   },
   {
     name: "Second Home Spitalfields",
@@ -341,6 +358,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Premium creative coworking for focused work and high-end meetings. Stunning biophilic design filled with natural light and thousands of plants.",
     tips: ["The café is amazing for casual meetings.", "Day passes are expensive but worth it for a creative boost."],
+    website: "https://www.secondhomeltd.com",
   },
   {
     name: "Ziferblat Old Street",
@@ -355,6 +373,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Ideal for coworking sprints and phone-friendly tasks. Pay-per-minute space where everything inside is included.",
     tips: ["Caps out at a day rate.", "Very homely, living-room style vibe."],
+    website: "https://www.ziferblat.co.uk",
   },
   {
     name: "The Riding House Cafe",
@@ -369,6 +388,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Ideal for 1-hour investor pitches and breakfast meetings. Sophisticated brasserie operating excellently as an impromptu morning HQ.",
     tips: ["Tolerant of laptops essentially until the lunch rush begins.", "Pricy coffee but high-speed internet."],
+    website: "https://www.ridinghouse.co.uk",
   },
 
   // --- FREE ACTIVITIES ---
@@ -385,6 +405,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Vast architectural wonder holding two million years of global history and culture.",
     tips: ["The Great Court ceiling is a marvel on bright days.", "Walk straight past the Rosetta Stone queue and explore the less busy upper floors."],
+    website: "https://www.britishmuseum.org",
   },
   {
     name: "Victoria and Albert Museum (V&A)",
@@ -399,6 +420,7 @@ export const spots = [
     googlePlaceId: null,
     description: "The world's leading museum of art and design housing incredibly beautiful permanent collections.",
     tips: ["The courtyard cafe on a summer day is one of the best spots in London.", "The fashion exhibits are world-class."],
+    website: "https://www.vam.ac.uk",
   },
   {
     name: "Tate Modern",
@@ -413,6 +435,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Britain's national museum of international modern and contemporary art inside a brutalist power station.",
     tips: ["The Turbin Hall drops your jaw every time.", "Free epic viewing platform from the Blavatnik Building."],
+    website: "https://www.tate.org.uk/visit/tate-modern",
   },
   {
     name: "Natural History Museum",
@@ -427,6 +450,7 @@ export const spots = [
     googlePlaceId: null,
     description: "An awe-inspiring cathedral to nature housing millions of specimens and the famous blue whale skeleton.",
     tips: ["Book a free ticket online to avoid standing in rain.", "The Earth Galleries ascending escalator is stunning."],
+    website: "https://www.nhm.ac.uk",
   },
   {
     name: "Sky Garden",
@@ -441,6 +465,7 @@ export const spots = [
     googlePlaceId: null,
     description: "London's highest public garden boasting sensational panoramic free views across the capital.",
     tips: ["Tickets are released exactly 3 weeks in advance. Book early.", "Walk-ins are occasionally permitted early morning or late night."],
+    website: "https://skygarden.london",
   },
   {
     name: "Little Venice Walk",
@@ -455,6 +480,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Beautiful tranquil canal walk lined heavily with colorful narrowboats stretching towards Camden.",
     tips: ["Start at Warwick Avenue and follow the water path all the way natively to Regent's Park."],
+    website: "https://en.wikipedia.org/wiki/Little_Venice",
   },
 
   // --- COFFEE ---
@@ -557,6 +583,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Highly curated boutique co-living spaces promoting extreme wellness mapping inside beautifully renovated heritage sites.",
     tips: ["Short stays are available.", "The common rooms resemble high-end private members clubs."],
+    website: "https://www.masonandfifth.com",
   },
   {
     name: "The Node",
@@ -571,6 +598,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Globally curated apartments dropping young professionals together acting as instant community hubs.",
     tips: ["Incredible rooftop access and frequent community events arranged by a dedicated host."],
+    website: "https://www.thenodebrixton.com",
   },
   {
     name: "Base Serviced Apartments",
@@ -599,6 +627,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Tech-oriented en-suite co-living dropping residents instantly within highly networked professional networks.",
     tips: ["Excellent internet speeds explicitly geared toward remote working.", "The partner app gives countless discounting benefits globally."],
+    website: "https://www.gravityco-living.com",
   },
   {
     name: "Folk Co-Living",
@@ -613,6 +642,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Massive ultra-modern purpose-built living blocks including gyms, cinema rooms, and massive roof terraces.",
     tips: ["Everything including standard toiletries and gym access is bounded intrinsically into the flat monthly bill."],
+    website: "https://www.folk.london",
   },
 
   // --- ACCELERATORS / VC ---
@@ -629,6 +659,7 @@ export const spots = [
     googlePlaceId: null,
     description: "World-leading talent incubator mapping individuals together establishing highly formidable early stage technology companies.",
     tips: ["You apply fundamentally purely on your talent, no mapped idea is strictly required initially."],
+    website: "https://www.joinef.com",
   },
   {
     name: "Seedcamp",
@@ -643,6 +674,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Europe's leading seed fund aggressively backing exceptional native founders hitting massive global scaling limits.",
     tips: ["Their founder network is legendary for lateral problem solving.", "Usually takes a warm introduction to hit the partner desk."],
+    website: "https://www.seedcamp.com",
   },
   {
     name: "Antler UK",
@@ -657,6 +689,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Global zero-to-one company builder matching founders providing immediate stipends mapping path to initial investments.",
     tips: ["Cohorts run twice a year rigorously.", "Be prepared to pitch dozens of co-founders in week one rapidly."],
+    website: "https://www.antler.co",
   },
   {
     name: "Founders Factory",
@@ -671,6 +704,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Studio and accelerator hybrid matching corporate advantage directly with intense operational scaling maps natively.",
     tips: ["Outstanding operations and marketing teams provide hands-on building support constantly."],
+    website: "https://foundersfactory.com",
   },
   {
     name: "LocalGlobe",
@@ -685,6 +719,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Staple London seed fund famously housed mapping natively out of Somers Town investing heavily against native UK companies.",
     tips: ["Extremely community focused looking for businesses carrying strong societal impacts globally."],
+    website: "https://localglobe.vc",
   },
   {
     name: "Atomico",
@@ -699,6 +734,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Heavyweight European venture capital firm established by Skype's co-founder targeting deeply ambitious Series A stages globally.",
     tips: ["They publish the definitive 'State of European Tech' report annually strictly.", "Focus strictly on massive scaling validation before applying."],
+    website: "https://www.atomico.com",
   },
   
   // Padding with 8 highly curated Bars/Experiences balancing the dataset perfectly towards the ~60 mark comprehensively
@@ -715,6 +751,7 @@ export const spots = [
     googlePlaceId: null,
     description: "London's oldest wine bar wrapping guests violently tight inside deeply romantic candle-lit subterranean cave structures.",
     tips: ["You absolutely must arrive securely before 4:30 PM strictly to claim a table dynamically.", "Cheese boards are highly generous."],
+    website: "https://www.gordonswinebar.com",
   },
   {
     name: "The Porterhouse",
@@ -729,6 +766,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Massive multi-level Irish pub brewing native stouts explicitly serving perfectly over copper pipes matching incredible live basement bands.",
     tips: ["The native Oyster Stout is generally considered fundamentally superior to heavily marketed brands explicitly.", "Maze-like interior is extremely tricky but fun to map."],
+    website: "https://www.theporterhouse.ie",
   },
   {
     name: "Trailer Happiness",
@@ -771,6 +809,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Summer-only rooftop bars natively operating securely on top of a multi-storey car park packing extreme London sunset boundaries.",
     tips: ["The pink staircase is an absolute London staple seamlessly.", "Strictly operates only locally within Summer metrics."],
+    website: "https://www.frankscafe.org.uk",
   },
   {
     name: "Bar Termini",
@@ -785,6 +824,7 @@ export const spots = [
     googlePlaceId: null,
     description: "Tiny Italian-style station bar pouring aggressively flawless pre-batched Negronis tracking natively back to the 1950s.",
     tips: ["Space tightly captures exactly 20 people maximally.", "The Marsala Negroni is an absolute masterpiece securely."],
+    website: "https://www.bar-termini.com",
   },
   {
     name: "Mestizo",
@@ -1371,5 +1411,66 @@ export const spots = [
     googlePlaceId: null,
     description: "Street market, vintage stalls, open Sundays. The ultimate destination for secondhand browsing and chaotic East End energy.",
     tips: ["Arrive around 10 AM on Sunday before the crowds get too thick."],
-  }
+    website: "https://www.visitlondon.com/things-to-do/place/402830-brick-lane-market",
+  },
+  {
+    name: "Ridley Road Market",
+    category: "food",
+    neighbourhood: "Dalston",
+    postcodeDistrict: "E8",
+    city: "london",
+    location: { latitude: 51.5482, longitude: -0.0754 },
+    priceTier: "£",
+    approxPriceGbp: 1,
+    tags: ["market", "fruit", "budget", "staple"],
+    googlePlaceId: null,
+    description: "Centuries-old market famous for 'one pound a bowl' fruit and veg and a vibrant local atmosphere.",
+    tips: ["Bring cash and a heavy bag.", "The end-of-day deals (after 4pm) are unbeatable."],
+    website: "https://www.hackney.gov.uk/ridley-road-market",
+  },
+  {
+    name: "Mangal 1",
+    category: "food",
+    neighbourhood: "Dalston",
+    postcodeDistrict: "E8",
+    city: "london",
+    location: { latitude: 51.5455, longitude: -0.0762 },
+    priceTier: "£",
+    approxPriceGbp: 8,
+    tags: ["turkish", "kebab", "halal", "ocakbasi"],
+    googlePlaceId: null,
+    description: "The original Dalston ocakbasi. No frills, just incredible charcoal-grilled meats and bread.",
+    tips: ["It's BYOB, so grab drinks from the shop next door.", "The Adana kebab is essential."],
+    website: "http://www.mangal1.com",
+  },
+  {
+    name: "Silk Road",
+    category: "food",
+    neighbourhood: "Camberwell",
+    postcodeDistrict: "SE5",
+    city: "london",
+    location: { latitude: 51.4740, longitude: -0.0890 },
+    priceTier: "£",
+    approxPriceGbp: 12,
+    tags: ["chinese", "xinjiang", "spicy", "noodles"],
+    googlePlaceId: null,
+    description: "Legendary Xinjiang-style Chinese known for big plate chicken and hand-pulled noodles.",
+    tips: ["Order the belt noodles to add to your chicken broth.", "Always busy, try to visit in a group."],
+    website: "https://www.facebook.com/silkroadcamberwell/",
+  },
+  {
+    name: "Xi'an Biang Biang Noodles",
+    category: "food",
+    neighbourhood: "Spitalfields",
+    postcodeDistrict: "E1",
+    city: "london",
+    location: { latitude: 51.5175, longitude: -0.0750 },
+    priceTier: "£",
+    approxPriceGbp: 12,
+    tags: ["chinese", "noodles", "spicy", "budget"],
+    googlePlaceId: null,
+    description: "Famous for thick, hand-pulled biang biang noodles with intense spicy oil and garlic.",
+    tips: ["The cumin lamb noodles are the standout dish.", "Queue moves fast but it's small inside."],
+    website: "https://www.xianbiangbiangnoodles.com",
+  },
 ];

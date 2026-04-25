@@ -26,7 +26,8 @@ const CATEGORY_OPTIONS: { value: Category; emoji: string; label: string }[] = [
   { value: "grocery", emoji: "🛒", label: "Grocery" },
   { value: "entertainment", emoji: "🎭", label: "Entertainment" },
   { value: "services", emoji: "✂️", label: "Services" },
-  { value: "housing", emoji: "🏠", label: "Housing" },
+  { value: "student-housing", emoji: "🏠", label: "Student Housing" },
+  { value: "vintage", emoji: "🏷️", label: "Secondhand & Vintage" },
   { value: "accelerator", emoji: "🚀", label: "Accelerator" },
   { value: "vc", emoji: "💰", label: "VC / Funding" },
 ];
@@ -59,6 +60,7 @@ const step1Schema = z.object({
   name: z.string().min(2, "At least 2 characters").max(80, "Too long"),
   neighbourhood: z.string().min(2, "At least 2 characters").max(60, "Too long"),
   priceTier: z.string().min(1, "Select a price tier"),
+  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 const step2Schema = z.object({
@@ -92,6 +94,7 @@ interface FormState {
   description: string;
   tips: string[];
   tags: string[];
+  website: string;
 }
 
 const INITIAL: FormState = {
@@ -109,6 +112,7 @@ const INITIAL: FormState = {
   description: "",
   tips: [],
   tags: [],
+  website: "",
 };
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
@@ -251,6 +255,19 @@ function Step1({
           placeholder="e.g. 8"
         />
       </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-[14px] font-medium text-[#1c1c1c]">
+          Website <span className="font-normal text-[#5f5f5d]">— optional</span>
+        </label>
+        <Input
+          type="url"
+          value={form.website}
+          onChange={(e) => update({ website: e.target.value })}
+          placeholder="https://..."
+        />
+        {errors.website && <p className="text-[12px] text-red-500">{errors.website}</p>}
+      </div>
     </div>
   );
 }
@@ -306,17 +323,16 @@ function Step2({
     setPostcodeError("");
     setGeocoding(true);
     try {
-      const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(pc)}`);
       if (!res.ok) throw new Error("not found");
       const data = await res.json();
-      const { latitude, longitude, admin_district, outcode } = data.result;
+      const { lat, lng } = data;
       update({
-        latitude,
-        longitude,
-        borough: admin_district || "",
-        postcodeDistrict: outcode || pc.split(" ")[0],
+        latitude: lat,
+        longitude: lng,
       });
-      mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 16 });
+      mapRef.current?.flyTo({ center: [lng, lat], zoom: 16 });
+      reverseGeocode(lat, lng);
     } catch {
       setPostcodeError("Postcode not found — try clicking the map instead.");
     } finally {
@@ -469,22 +485,26 @@ function Step3({
       </label>
 
       {form.photoPreview && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => update({ photoFile: null, photoPreview: null })}
-          className="text-[13px] text-[#5f5f5d] underline underline-offset-4 self-start hover:text-[#1c1c1c] transition-colors"
+          className="text-[13px] text-red-500 underline underline-offset-4 self-start hover:bg-red-50"
         >
           Remove photo
-        </button>
+        </Button>
       )}
 
-      <button
-        type="button"
-        onClick={onSkip}
-        className="text-[13px] text-[#5f5f5d] underline underline-offset-4 self-start hover:text-[#1c1c1c] transition-colors"
-      >
-        Skip for now
-      </button>
+      {!form.photoPreview && (
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onSkip}
+          className="text-[13px] text-[#5f5f5d] underline underline-offset-4 self-start hover:bg-[#f7f4ed]"
+        >
+          Skip for now
+        </Button>
+      )}
     </div>
   );
 }
@@ -653,6 +673,11 @@ function Step5({
             {form.borough || form.postcodeDistrict} · {form.priceTier}
             {form.approxPriceGbp && ` (~£${form.approxPriceGbp})`}
           </p>
+          {form.website && (
+            <p className="text-[12px] text-[#5f5f5d] break-all underline decoration-passive">
+              {form.website}
+            </p>
+          )}
         </div>
 
         <p className="text-[14px] text-[#1c1c1c] leading-relaxed">{form.description}</p>
@@ -739,6 +764,7 @@ export default function AddSpotPage() {
           name: form.name,
           neighbourhood: form.neighbourhood,
           priceTier: form.priceTier,
+          website: form.website,
         })
       );
     }
@@ -824,6 +850,7 @@ export default function AddSpotPage() {
           description: form.description,
           tips: form.tips,
           tags: form.tags,
+          website: form.website || null,
         }),
       });
 
@@ -847,10 +874,19 @@ export default function AddSpotPage() {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-[#5f5f5d]">
-        Loading...
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+        <div className="w-8 h-8 border-4 border-passive border-t-[#1c1c1c] rounded-full animate-spin" />
+        <span className="text-[#5f5f5d] text-sm animate-pulse">Loading identity...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+        <span className="text-[#5f5f5d] text-sm">Redirecting to login...</span>
       </div>
     );
   }

@@ -8,8 +8,9 @@ import { useFavourite } from "@/hooks/useFavourite";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ArrowRight, Bookmark, BookmarkCheck, Flag } from "lucide-react";
+import { MapPin, Globe, ArrowRight, Bookmark, BookmarkCheck, Flag } from "lucide-react";
 import { NearestStation } from "@/components/features/NearestStation";
+import { getDirectionsUrl } from "@/lib/maps/getDirectionsUrl";
 import type { Spot } from "@/types";
 import { trackSpotViewed } from "@/lib/analytics";
 
@@ -52,11 +53,6 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
     await toggleSave();
   };
 
-  const getDirections = () => {
-    if (!spot) return;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${spot.location.latitude},${spot.location.longitude}`;
-    window.open(url, "_blank");
-  };
 
   const viewFullPage = () => {
     if (!spot) return;
@@ -155,14 +151,48 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
               <hr className="border-passive" />
 
               {/* Actions */}
-              <Button
-                onClick={getDirections}
-                variant="ghost"
-                className="w-full justify-center"
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Get directions
-              </Button>
+              <div className="flex flex-col gap-3">
+                {spot.website ? (
+                  <a 
+                    href={spot.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full"
+                  >
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]"
+                    >
+                      <Globe className="w-4 h-4 mr-2" />
+                      Visit Website
+                    </Button>
+                  </a>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <Button 
+                      variant="ghost" 
+                      disabled
+                      className="w-full justify-center py-4 h-auto border border-dashed text-[#5f5f5d] opacity-50"
+                    >
+                      <Globe className="w-4 h-4 mr-2" />
+                      Visit Website
+                    </Button>
+                    <span className="text-[11px] text-[#5f5f5d]/60 text-center font-medium">Website unavailable</span>
+                  </div>
+                )}
+
+                <a 
+                  href={getDirectionsUrl(spot)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button variant="ghost" className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Get directions
+                  </Button>
+                </a>
+              </div>
 
               {/* Description */}
               <p className="t-body text-[#1c1c1c] leading-relaxed">{spot.description}</p>

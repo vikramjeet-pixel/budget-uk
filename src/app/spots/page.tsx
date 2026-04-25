@@ -103,14 +103,34 @@ function SpotsGridContent() {
   // TODO: When the spot index exceeds ~500 docs, replace this client-side filter
   // with an Algolia or Typesense call. Swap point: src/hooks/useSpots.ts —
   // remove the onSnapshot + client filter and call the search client instead.
-  const filteredSpots = debouncedQuery
-    ? rawSpots.filter(spot =>
-        spot.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-        spot.description.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-        spot.neighbourhood?.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-        spot.tags?.some(t => t.toLowerCase().includes(debouncedQuery.toLowerCase()))
-      )
-    : rawSpots;
+  const filteredSpots = React.useMemo(() => {
+    if (!debouncedQuery) return rawSpots;
+    
+    const query = debouncedQuery.toLowerCase().trim();
+    
+    // Categorize matches natively ensuring postcode-direct priority
+    const postcodeMatches: Spot[] = [];
+    const nameMatches: Spot[] = [];
+    const otherMatches: Spot[] = [];
+
+    rawSpots.forEach(spot => {
+        const postcodeMatch = spot.postcodeDistrict?.toLowerCase() === query;
+        const nameMatch = spot.name.toLowerCase().includes(query);
+        const descMatch = spot.description.toLowerCase().includes(query);
+        const nbhMatch = spot.neighbourhood?.toLowerCase().includes(query);
+        const tagMatch = spot.tags?.some(t => t.toLowerCase().includes(query));
+
+        if (postcodeMatch) {
+            postcodeMatches.push(spot);
+        } else if (nameMatch) {
+            nameMatches.push(spot);
+        } else if (descMatch || nbhMatch || tagMatch) {
+            otherMatches.push(spot);
+        }
+    });
+
+    return [...postcodeMatches, ...nameMatches, ...otherMatches];
+  }, [debouncedQuery, rawSpots]);
 
   // Track search performed (debounced to avoid firing on every keystroke)
   const prevQuery = useRef("");

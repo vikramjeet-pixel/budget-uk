@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
@@ -62,20 +64,34 @@ export function SpotCard({
                   {spot.priceTier === "free" ? "Always Free" : `~£${spot.approxPriceGbp} ${spot.category === "food" ? "per meal" : spot.category === "coffee" ? "per cup" : ""}`}
                 </div>
               )}
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="category">{spot.neighbourhood}</Badge>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="text-[14px] text-[#5f5f5d] font-medium">
+                  {spot.neighbourhood} {spot.postcodeDistrict ? `· ${spot.postcodeDistrict}` : ""}
+                </span>
                 <Badge variant={spot.priceTier === "free" ? "free" : "tier"}>
                   {spot.priceTier === "free" ? "Free" : spot.priceTier}
                 </Badge>
                 {showDistance && spot.distance !== undefined && (
-                  <span className="text-[12px] text-[#5f5f5d] font-medium ml-1">
-                    {(spot.distance / 1000).toFixed(1)}km
+                  <span className="text-[12px] text-[#565] font-medium ml-1">
+                    · {(spot.distance / 1000).toFixed(1)}km
                   </span>
                 )}
               </div>
+
+              {spot.website && (
+                <a 
+                  href={spot.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[14px] text-[#5f5f5d] hover:text-[#1c1c1c] underline-offset-4 hover:underline mb-2 block w-fit"
+                >
+                  {spot.website.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+                </a>
+              )}
             </div>
 
-            <p className="text-[#5f5f5d] text-[14px] line-clamp-2 mt-1">
+            <p className="text-[#5f5f5d] text-[14px] line-clamp-2 mt-auto">
               {highlightText(spot.description, query)}
             </p>
           </div>

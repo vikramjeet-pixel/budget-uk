@@ -55,6 +55,8 @@ export interface Spot {
   voteCount: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  /** Primary website for the spot, optional. */
+  website?: string | null;
   /** Populated from Google Places weekday_text when synced (e.g. "Monday: 10:00 AM – 5:30 PM") */
   openingHoursText?: string[];
   /** Enriched data from Google Places API, refreshed every 30 days */

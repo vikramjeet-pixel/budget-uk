@@ -12,6 +12,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Premium central hall with elite amenities. High-demand location near major city campuses with modern study spaces and social zones.",
     tips: ["Book 8-10 months in advance for the best rates."],
+    website: "https://www.unitestudents.com",
   },
   {
     name: "Unite Students - Stapleton House",
@@ -26,6 +27,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Perfectly balanced for North London students. Vibrant social scene and excellent transport links to central university sites across London.",
     tips: ["Wait for 'last-minute' cancellations in July for potential deals."],
+    website: "https://www.unitestudents.com",
   },
   {
     name: "Unite Students - Drapery Place",
@@ -40,6 +42,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Heart of Spitalfields. Contemporary student living surrounded by creative energy and incredible street food, just minutes from the City.",
     tips: ["High-spec studios available if you prefer total privacy."],
+    website: "https://www.unitestudents.com",
   },
   {
     name: "Unite Students - Olympic Way",
@@ -54,6 +57,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Best value for West London. Modern facilities at a significantly lower price point than central pods, with direct metropolitan links.",
     tips: ["Excellent if you study at campuses in Harrow or Wembley."],
+    website: "https://www.unitestudents.com",
   },
   {
     name: "Unite Students - Moonraker Point",
@@ -68,6 +72,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "South Bank institution. Highly reputable halls serving KCL and LSE students with spacious communal areas and high-speed dedicated internet.",
     tips: ["Walking distance to Borough Market for cheap eats."],
+    website: "https://www.unitestudents.com",
   },
   {
     name: "iQ Student Accommodation - Shoreditch",
@@ -82,6 +87,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "High-spec living in London's tech hub. Features a sky lounge, private gym, and highly secure digital access for residents.",
     tips: ["The rooftop terrace offers some of the best study views."],
+    website: "https://www.iqstudentaccommodation.com",
   },
   {
     name: "Chapter - King's Cross",
@@ -96,6 +102,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Iconic student tower. Offers incredible 360-degree views, fitness suites, and direct proximity to the world's best transport travel hub.",
     tips: ["The social events calendar here is one of the best."],
+    website: "https://www.chapter-living.com",
   },
   {
     name: "SpareRoom (Platform)",
@@ -110,6 +117,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Browse real house-shares, £150–250/week average. The most popular platform for finding affordable rooms in existing shared flats across London.",
     tips: ["Use the 'Early Bird' access to see rooms before others."],
+    website: "https://www.spareroom.co.uk",
   },
   {
     name: "SpareRoom Facebook Groups",
@@ -124,6 +132,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Unmoderated but real — filter by area. Great for finding direct-from-landlord or roommate replacements without heavy platform fees.",
     tips: ["Always visit in person before sending any deposit."],
+    website: "https://www.facebook.com/groups/spareroomlondon",
   },
   {
     name: "Digs.net",
@@ -138,6 +147,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "A specialized student housing search engine focusing on verified private halls and university-recommended accommodations across all major London campus areas.",
     tips: ["Filters focus on student-specific amenities like desk size."],
+    website: "https://www.digs.net",
   },
   {
     name: "StudentPad",
@@ -152,6 +162,7 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Official accommodation search platform used by many London universities to list accredited private landlords and verified student house-share opportunities.",
     tips: ["Look for the 'University Accredited' badge for safety."],
+    website: "https://www.studentpad.co.uk",
   },
   {
     name: "Rightmove (Students)",
@@ -166,5 +177,6 @@ export const studentHousingSpots = [
     googlePlaceId: null,
     description: "Filtered view for student-to-let properties. Best for finding whole houses or flats for groups of friends looking to live together.",
     tips: ["Set up instant alerts for 'student-friendly' keyword."],
+    website: "https://www.rightmove.co.uk/student-accommodation.html",
   }
 ];

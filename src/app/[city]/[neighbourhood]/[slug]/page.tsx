@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
 import { SpotCard } from "@/components/features/SpotCard";
-import { MapPin } from "lucide-react";
+import { MapPin, Globe } from "lucide-react";
 import { TransportInfo } from "@/components/features/TransportInfo";
 import { NearestStation } from "@/components/features/NearestStation";
 import { SaveSpotButton } from "@/components/features/SaveSpotButton";
+import { getDirectionsUrl } from "@/lib/maps/getDirectionsUrl";
 import * as geofire from "geofire-common";
 
 // Pre-build top 50 spots; all other slugs render on-demand and are cached for 1 hour.
@@ -347,12 +348,43 @@ export default async function SpotPage({ params }: PageProps) {
 
                 <div className="flex flex-col gap-3">
                   <SaveSpotButton spotId={spot.id!} />
+                  
+                  {spot.website ? (
+                    <a 
+                      href={spot.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full"
+                    >
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]"
+                      >
+                        <Globe className="w-4 h-4 mr-2" />
+                        Visit Website
+                      </Button>
+                    </a>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <Button 
+                        variant="ghost" 
+                        disabled
+                        className="w-full justify-center py-4 h-auto border border-dashed text-[#5f5f5d] opacity-50"
+                      >
+                        <Globe className="w-4 h-4 mr-2" />
+                        Visit Website
+                      </Button>
+                      <span className="text-[11px] text-[#5f5f5d]/60 text-center font-medium">Website unavailable</span>
+                    </div>
+                  )}
+
                   <a 
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${spot.location.latitude},${spot.location.longitude}`}
+                    href={getDirectionsUrl(spot)}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="w-full"
                   >
-                    <Button variant="ghost" className="w-full justify-center py-4 h-auto">
+                    <Button variant="ghost" className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]">
                       <MapPin className="w-4 h-4 mr-2" />
                       Get directions
                     </Button>
