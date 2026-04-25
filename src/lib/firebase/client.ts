@@ -15,24 +15,24 @@ const firebaseConfig = {
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// ─── App Check (reCAPTCHA v3) ────────────────────────────────────────────────
-// Only initialize on the client side when the site key is available.
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+
+// Initialize and export App Check if in browser and site key exists
+let appCheckInstance: any = null;
 if (typeof window !== "undefined") {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   if (siteKey) {
-    // Enable debug token in development (set FIREBASE_APPCHECK_DEBUG_TOKEN=true in browser console)
     if (process.env.NODE_ENV === "development") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
-    initializeAppCheck(app, {
+    appCheckInstance = initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(siteKey),
       isTokenAutoRefreshEnabled: true,
     });
   }
 }
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const appCheck = appCheckInstance;
 

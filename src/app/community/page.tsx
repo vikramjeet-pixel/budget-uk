@@ -7,7 +7,7 @@ import { collection, doc, getDoc, getDocs, query, where } from "firebase/firesto
 import { ChevronUp, Check, Clock, PlusCircle, TrendingUp } from "lucide-react";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { useSubmissions } from "@/hooks/useSubmissions";
-import { auth, db } from "@/lib/firebase/client";
+import { auth, db, app, appCheck } from "@/lib/firebase/client";
 import { getToken } from "firebase/app-check";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
@@ -242,13 +242,14 @@ export default function CommunityPage() {
       // Get App Check token if available
       let appCheckToken: string | undefined;
       try {
-        const { getAppCheck } = await import("firebase/app-check");
-        const appCheck = getAppCheck();
-        const result = await getToken(appCheck, false);
-        appCheckToken = result.token;
+        if (appCheck) {
+          const result = await getToken(appCheck, false);
+          appCheckToken = result.token;
+        }
       } catch (err) {
         console.warn("App Check not available:", err);
       }
+      const res = await fetch("/api/community/vote", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
