@@ -5,9 +5,20 @@ import { EVENT_SOURCES, COMMUNITY_PEOPLE } from "@/data/events";
 import type { EventSource, CommunityPerson } from "@/data/events";
 
 export const metadata: Metadata = {
-  title: "London Tech Events | BudgetUK",
+  title: "London Tech Events",
   description:
     "A hand-curated guide to recurring tech events, founder meetups, and communities in London.",
+  alternates: { canonical: "/events" },
+  openGraph: {
+    title: "London Tech Events",
+    description: "A hand-curated guide to recurring tech events, founder meetups, and communities in London.",
+    url: "/events",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "London Tech Events",
+    description: "A hand-curated guide to recurring tech events, founder meetups, and communities in London.",
+  },
 };
 
 function SourceCard({ source }: { source: EventSource }) {

@@ -9,6 +9,7 @@ import * as z from "zod";
 import { signUpWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
+import { trackSignup } from "@/lib/analytics";
 
 const signupSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -33,6 +34,7 @@ export default function SignupPage() {
     setAuthError("");
     try {
       await signUpWithEmail(data.email, data.password);
+      trackSignup({ method: "email" });
       router.push("/");
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
@@ -48,6 +50,7 @@ export default function SignupPage() {
     setAuthError("");
     try {
       await signInWithGoogle();
+      trackSignup({ method: "google" });
       router.push("/");
     } catch (error: any) {
       setAuthError("Google sign-in failed. Please try again.");

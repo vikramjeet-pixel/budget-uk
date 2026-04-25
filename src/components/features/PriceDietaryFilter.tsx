@@ -5,6 +5,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { ChevronDown, Check } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { trackFilterApplied } from "@/lib/analytics";
 
 const PRICE_OPTIONS = [
   { value: "free", label: "Free" },
@@ -101,6 +102,7 @@ export function PriceDietaryFilter() {
       ? selectedPrices.filter(p => p !== value)
       : [...selectedPrices, value];
     updateParams(next, selectedTags);
+    trackFilterApplied({ type: "price", value });
   };
 
   const toggleTag = (value: string) => {
@@ -108,6 +110,7 @@ export function PriceDietaryFilter() {
       ? selectedTags.filter(t => t !== value)
       : [...selectedTags, value];
     updateParams(selectedPrices, next);
+    trackFilterApplied({ type: "tag", value });
   };
 
   const clearAll = () => updateParams([], []);

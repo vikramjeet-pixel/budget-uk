@@ -9,6 +9,7 @@ import * as z from "zod";
 import { signInWithEmail, signInWithGoogle } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
+import { trackLogin } from "@/lib/analytics";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -35,6 +36,7 @@ function LoginForm() {
     setAuthError("");
     try {
       await signInWithEmail(data.email, data.password);
+      trackLogin({ method: "email" });
       router.push(redirect);
     } catch (error) {
       setAuthError("Failed to sign in. Please check your credentials.");
@@ -46,6 +48,7 @@ function LoginForm() {
     setAuthError("");
     try {
       await signInWithGoogle();
+      trackLogin({ method: "google" });
       router.push(redirect);
     } catch (error) {
       setAuthError("Google sign-in failed. Please try again.");

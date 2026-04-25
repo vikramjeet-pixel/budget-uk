@@ -81,25 +81,138 @@ async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
   return unique.sort((a, b) => a.distance - b.distance).slice(0, limit) as Spot[];
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://budgetuk.io";
+
+const FOOD_CATEGORIES = new Set(["food", "coffee", "bars", "grocery"]);
+
+function buildSpotUrl(spot: Spot): string {
+  const neighbourhood = encodeURIComponent(spot.neighbourhood.toLowerCase().replace(/\s+/g, "-"));
+  return `${BASE_URL}/${spot.city || "london"}/${neighbourhood}/${spot.slug}`;
+}
+
+function priceTierToRange(tier: string): string {
+  switch (tier) {
+    case "free": return "Free";
+    case "£": return "£0–£5";
+    case "££": return "£5–£15";
+    case "£££": return "£15–£30";
+    case "££££": return "£30+";
+    default: return "";
+  }
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function buildJsonLd(spot: Spot): Record<string, any> {
+  const isFood = FOOD_CATEGORIES.has(spot.category);
+  const url = buildSpotUrl(spot);
+
+  const ld: Record<string, any> = {
+    "@context": "https://schema.org",
+    "@type": isFood ? "Restaurant" : "LocalBusiness",
+    name: spot.name,
+    url,
+    description: spot.description,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: spot.neighbourhood,
+      addressRegion: spot.borough,
+      postalCode: spot.postcodeDistrict,
+      addressCountry: "GB",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: spot.location.latitude,
+      longitude: spot.location.longitude,
+    },
+    priceRange: priceTierToRange(spot.priceTier),
+  };
+
+  if (spot.photoUrl) {
+    ld.image = spot.photoUrl;
+  }
+
+  // Aggregate rating from Google Places enrichment
+  if (spot.placeData?.rating && spot.placeData?.userRatingsTotal) {
+    ld.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: spot.placeData.rating,
+      reviewCount: spot.placeData.userRatingsTotal,
+      bestRating: 5,
+    };
+  }
+
+  // Opening hours from Google Places
+  if (spot.placeData?.openingHours && spot.placeData.openingHours.length > 0) {
+    ld.openingHoursSpecification = spot.placeData.openingHours.map((text) => {
+      // Parse "Monday: 10:00 AM – 5:30 PM" format
+      const match = text.match(/^(\w+):\s*(.+)$/);
+      if (!match) return { "@type": "OpeningHoursSpecification", description: text };
+
+      const dayOfWeek = match[1];
+      const timeRange = match[2].trim();
+      const spec: Record<string, any> = {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek,
+      };
+
+      if (timeRange.toLowerCase() !== "closed") {
+        const times = timeRange.split(/\s*[–-]\s*/);
+        if (times.length === 2) {
+          spec.opens = times[0].trim();
+          spec.closes = times[1].trim();
+        }
+      }
+
+      return spec;
+    });
+  }
+
+  // Phone and website
+  if (spot.placeData?.phone) ld.telephone = spot.placeData.phone;
+  if (spot.placeData?.website) ld.sameAs = spot.placeData.website;
+
+  if (isFood && spot.tags?.length) {
+    ld.servesCuisine = spot.tags.filter(t =>
+      ["halal", "vegetarian", "vegan", "kosher", "gluten-free"].includes(t)
+    );
+  }
+
+  return ld;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const spot = await getSpotBySlug(slug);
 
   if (!spot) {
-    return {
-      title: "Spot Not Found | BudgetUK",
-    };
+    return { title: "Spot Not Found" };
   }
 
-  const title = `${spot.name} ${spot.neighbourhood} — ${spot.category.charAt(0).toUpperCase() + spot.category.slice(1)} in ${spot.postcodeDistrict} | BudgetUK`;
-  
+  const title = `${spot.name} — ${spot.category.charAt(0).toUpperCase() + spot.category.slice(1)} in ${spot.neighbourhood}`;
+  const description = spot.description.length > 160
+    ? spot.description.slice(0, 157) + "…"
+    : spot.description;
+  const url = buildSpotUrl(spot);
+
   return {
     title,
-    description: spot.description,
+    description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
-      description: spot.description,
-      images: spot.photoUrl ? [{ url: spot.photoUrl }] : [],
+      description,
+      url,
+      type: "article",
+      images: spot.photoUrl ? [{ url: spot.photoUrl, alt: spot.name }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: spot.photoUrl ? [spot.photoUrl] : [],
     },
   };
 }
@@ -136,9 +249,14 @@ export default async function SpotPage({ params }: PageProps) {
   }
 
   const nearbySpots = await getNearbySpots(spot);
+  const jsonLd = buildJsonLd(spot);
 
   return (
     <div className="min-h-screen bg-[#fcfbf8] pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           

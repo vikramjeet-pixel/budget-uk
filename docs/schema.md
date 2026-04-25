@@ -27,6 +27,15 @@ The primary public collection containing all approved, live locations.
 - **voteCount** (`number`): Upvotes aggregator.
 - **createdAt** (`Timestamp`): Document creation block.
 - **updatedAt** (`Timestamp`): Final modification timestamp.
+- **placeData** (`object | null`): Enriched data from Google Places API, refreshed every 30 days by the `enrichAllPlaces` Cloud Function. Contains:
+  - **openingHours** (`string[]`): `weekday_text` array e.g. `["Monday: 10:00 AM – 5:30 PM", ...]`.
+  - **phone** (`string | null`): Formatted phone number.
+  - **website** (`string | null`): Business website URL.
+  - **rating** (`number | null`): Google rating (1.0–5.0).
+  - **userRatingsTotal** (`number | null`): Total number of Google ratings.
+  - **priceLevel** (`number | null`): 0–4 price level from Google.
+  - **photoRef** (`string | null`): Photo reference for server-side proxy at `/api/places/photo?ref=...`.
+  - **lastSyncedAt** (`Timestamp`): When this data was last fetched.
 
 ---
 

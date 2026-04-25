@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LONDON_LOCATIONS } from "@/data/london-locations";
+import { trackFilterApplied } from "@/lib/analytics";
 
 export function NeighbourhoodFilter() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export function NeighbourhoodFilter() {
       ? selectedNbhs.filter((n) => n !== nbh)
       : [...selectedNbhs, nbh];
     updateFilters(next, selectedBoroughs);
+    trackFilterApplied({ type: "neighbourhood", value: nbh });
   };
 
   const toggleBorough = (boroughName: string) => {
@@ -53,6 +55,7 @@ export function NeighbourhoodFilter() {
       ? selectedBoroughs.filter((b) => b !== boroughName)
       : [...selectedBoroughs, boroughName];
     updateFilters(selectedNbhs, next);
+    trackFilterApplied({ type: "borough", value: boroughName });
   };
 
   const clearAll = () => {

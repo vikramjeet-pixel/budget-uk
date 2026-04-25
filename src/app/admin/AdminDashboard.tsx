@@ -16,7 +16,7 @@ import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Header } from "@/components/features/Header";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Edit3, Trash2, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { Check, X, Edit3, Trash2, ChevronDown, ChevronUp, AlertCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Submission, Spot, Report } from "@/types";
 
@@ -232,6 +232,8 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
   const [editState, setEditState] = useState<EditState>({ description: "", tagsRaw: "" });
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [syncResult, setSyncResult] = useState<{ id: string; ok: boolean } | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, "spots"), where("status", "==", "live"), orderBy("createdAt", "desc"));
@@ -295,6 +297,31 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
     }
   };
 
+  const syncPlaces = async (spotId: string) => {
+    setSyncingId(spotId);
+    setSyncResult(null);
+    try {
+      const token = await getToken();
+      const res = await fetch("/api/admin/places/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ spotId }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? `HTTP ${res.status}`);
+      }
+      setSyncResult({ id: spotId, ok: true });
+      // Clear the success indicator after 3s
+      setTimeout(() => setSyncResult(null), 3000);
+    } catch (e) {
+      setError((e as Error).message);
+      setSyncResult({ id: spotId, ok: false });
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-passive overflow-hidden shadow-sm">
       {error && (
@@ -307,7 +334,7 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#f7f4ed] border-b border-passive">
-              {["Spot", "Area", "Tags", "Price", "Actions"].map((h) => (
+              {["Spot", "Area", "Tags", "Price", "Google Places", "Actions"].map((h) => (
                 <th key={h} className="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-[#5f5f5d]">
                   {h}
                 </th>
@@ -342,6 +369,44 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
                       <Badge variant="tier" className="text-[12px]">
                         {spot.priceTier === "free" ? "Free" : spot.priceTier}
                       </Badge>
+                    </td>
+                    <td className="px-5 py-4">
+                      {spot.googlePlaceId ? (
+                        <div className="flex flex-col items-start gap-1">
+                          {(() => {
+                            const isSynced = syncResult?.id === spot.id && syncResult?.ok;
+                            return (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={syncingId === spot.id}
+                                onClick={() => syncPlaces(spot.id!)}
+                                className={cn(
+                                  "h-7 px-2.5 text-[11px] rounded-lg border gap-1.5",
+                                  isSynced
+                                    ? "border-green-300 text-green-700 bg-green-50"
+                                    : "border-passive hover:bg-[#f7f4ed]"
+                                )}
+                              >
+                                {syncingId === spot.id ? (
+                                  <Spinner />
+                                ) : isSynced ? (
+                                  <><Check className="w-3 h-3" />Synced</>
+                                ) : (
+                                  <><RefreshCw className="w-3 h-3" />Sync now</>
+                                )}
+                              </Button>
+                            );
+                          })()}
+                          {(spot as Spot & { placeData?: { lastSyncedAt?: { toDate?: () => Date } } }).placeData?.lastSyncedAt?.toDate && (
+                            <span className="text-[10px] text-[#5f5f5d]">
+                              Last: {(spot as Spot & { placeData?: { lastSyncedAt?: { toDate?: () => Date } } }).placeData!.lastSyncedAt!.toDate!().toLocaleDateString("en-GB")}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-[#b0b0ae]">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">

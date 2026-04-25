@@ -6,9 +6,20 @@ import { FreePageClient } from "./FreePageClient";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Free in London | BudgetUK",
+  title: "Free in London",
   description:
     "Free museums, parks, walks, markets, and cultural events in London — plus community-submitted free spots.",
+  alternates: { canonical: "/free" },
+  openGraph: {
+    title: "Free in London",
+    description: "Free museums, parks, walks, markets, and cultural events in London.",
+    url: "/free",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free in London",
+    description: "Free museums, parks, walks, markets, and cultural events in London.",
+  },
 };
 
 export default async function FreePage() {

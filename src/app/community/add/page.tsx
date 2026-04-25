@@ -13,6 +13,7 @@ import { uploadSubmissionPhoto } from "@/lib/firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import type { Category, PriceTier } from "@/types";
+import { trackSpotSubmitted } from "@/lib/analytics";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -847,6 +848,10 @@ export default function AddSpotPage() {
         setSubmitError(data.error || "Submission failed. Please try again.");
         setSubmitting(false);
         return;
+      }
+
+      if (data.submissionId) {
+        trackSpotSubmitted({ spotId: data.submissionId });
       }
 
       router.push("/community/thanks");

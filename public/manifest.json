@@ -1,0 +1,26 @@
+{
+  "name": "BudgetUK",
+  "short_name": "BudgetUK",
+  "description": "Explore, map and save the best budget-friendly places across London.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#f7f4ed",
+  "background_color": "#f7f4ed",
+  "categories": ["lifestyle", "food", "travel"],
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

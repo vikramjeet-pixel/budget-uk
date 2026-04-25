@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { distanceBetween } from "geofire-common";
 import { useSpots } from "@/hooks/useSpots";
@@ -13,6 +13,7 @@ import { SortDropdown, type SortKey } from "@/components/features/SortDropdown";
 import { SpotDrawer } from "@/components/features/SpotDrawer";
 import { Search } from "lucide-react";
 import type { Spot } from "@/types";
+import { trackSearchPerformed } from "@/lib/analytics";
 
 const PRICE_ORDER: Record<string, number> = {
   free: 0, "£": 1, "££": 2, "£££": 3, "££££": 4,
@@ -110,6 +111,15 @@ function SpotsGridContent() {
         spot.tags?.some(t => t.toLowerCase().includes(debouncedQuery.toLowerCase()))
       )
     : rawSpots;
+
+  // Track search performed (debounced to avoid firing on every keystroke)
+  const prevQuery = useRef("");
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery !== prevQuery.current) {
+      trackSearchPerformed({ query: debouncedQuery, resultCount: filteredSpots.length });
+    }
+    prevQuery.current = debouncedQuery;
+  }, [debouncedQuery, filteredSpots.length]);
 
   const sortedSpots = applySort(filteredSpots, sortKey, userLocation);
 

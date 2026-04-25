@@ -19,6 +19,17 @@ export type SpotStatus = "live" | "pending" | "rejected" | "removed";
 
 export type UserRole = "user" | "moderator" | "admin";
 
+export interface PlaceData {
+  openingHours: string[];
+  phone: string | null;
+  website: string | null;
+  rating: number | null;
+  userRatingsTotal: number | null;
+  priceLevel: number | null;
+  photoRef: string | null;
+  lastSyncedAt: Timestamp;
+}
+
 export interface Spot {
   id?: string;
   name: string;
@@ -44,6 +55,8 @@ export interface Spot {
   updatedAt: Timestamp;
   /** Populated from Google Places weekday_text when synced (e.g. "Monday: 10:00 AM – 5:30 PM") */
   openingHoursText?: string[];
+  /** Enriched data from Google Places API, refreshed every 30 days */
+  placeData?: PlaceData;
 }
 
 export interface User {

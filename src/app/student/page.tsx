@@ -3,11 +3,23 @@ import type { Metadata } from "next";
 import { CheckCircle, ExternalLink } from "lucide-react";
 import { STUDENT_SECTIONS } from "@/data/student";
 import type { StudentSection, StudentItem, AffiliateCta } from "@/data/student";
+import { AffiliateLink } from "@/components/features/AffiliateLink";
 
 export const metadata: Metadata = {
-  title: "Student London | BudgetUK",
+  title: "Student London",
   description:
     "Banking, phone plans, discounts, transport, housing, and food tips for students in London.",
+  alternates: { canonical: "/student" },
+  openGraph: {
+    title: "Student London",
+    description: "Banking, phone plans, discounts, transport, housing, and food tips for students in London.",
+    url: "/student",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Student London",
+    description: "Banking, phone plans, discounts, transport, housing, and food tips for students in London.",
+  },
 };
 
 // ── Affiliate CTA block ───────────────────────────────────────────────────────
@@ -27,15 +39,14 @@ function AffiliateCTABlock({ cta }: { cta: AffiliateCta }) {
         </p>
         <p className="text-[13px] text-white/70 leading-relaxed">{cta.body}</p>
       </div>
-      <a
+      <AffiliateLink
         href={cta.url}
-        target="_blank"
-        rel="noopener noreferrer sponsored"
+        destination={cta.label}
         className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-[#fcfbf8] text-[#1c1c1c] text-[13px] font-semibold rounded-full hover:bg-white transition-colors whitespace-nowrap"
       >
         {cta.buttonText}
         <ExternalLink className="w-3 h-3" />
-      </a>
+      </AffiliateLink>
     </aside>
   );
 }

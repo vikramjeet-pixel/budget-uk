@@ -3,6 +3,7 @@
 import React, { useCallback, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { trackFilterApplied } from "@/lib/analytics";
 
 const CATEGORY_MAP = [
   { id: "near_me", icon: "📍", label: "Near me" },
@@ -70,6 +71,11 @@ function CategoryPillsContent() {
 
     // Replace the URL instantly silently triggering hook dependencies organically overlapping states!
     router.push(pathname + "?" + params.toString(), { scroll: false });
+
+    // Track filter event for non-clear actions
+    if (id !== "all") {
+      trackFilterApplied({ type: "category", value: id });
+    }
   }, [currentCats, isNearMe, pathname, router, searchParams]);
 
   // Derive explicit ALL state locally cleanly ensuring 'nearby' or standard category elements toggle states naturally!

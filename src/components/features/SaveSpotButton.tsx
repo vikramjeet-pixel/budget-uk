@@ -7,6 +7,7 @@ import { Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavourite } from "@/hooks/useFavourite";
 import { useAuthContext } from "@/components/providers/AuthProvider";
+import { trackSpotSaved } from "@/lib/analytics";
 
 interface SaveSpotButtonProps {
   spotId: string;
@@ -23,7 +24,11 @@ export function SaveSpotButton({ spotId }: SaveSpotButtonProps) {
       setPopoverOpen(true);
       return;
     }
+    const wasSaved = isSaved;
     await toggleSave();
+    if (!wasSaved) {
+      trackSpotSaved({ spotId });
+    }
   };
 
   const loginHref = `/login?redirect=${encodeURIComponent(pathname)}`;

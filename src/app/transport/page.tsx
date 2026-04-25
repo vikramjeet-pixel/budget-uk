@@ -6,9 +6,20 @@ import type { TransportMode } from "@/data/transport";
 import { FareCalculator } from "./FareCalculator";
 
 export const metadata: Metadata = {
-  title: "Getting Around London | BudgetUK",
+  title: "Getting Around London",
   description:
     "A complete guide to London transport — Tube, buses, bikes, rail, coaches — with fares, caps, and money-saving tips.",
+  alternates: { canonical: "/transport" },
+  openGraph: {
+    title: "Getting Around London",
+    description: "A complete guide to London transport — Tube, buses, bikes, rail, coaches — with fares, caps, and tips.",
+    url: "/transport",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Getting Around London",
+    description: "A complete guide to London transport — Tube, buses, bikes, rail, coaches — with fares, caps, and tips.",
+  },
 };
 
 function TransportCard({ mode }: { mode: TransportMode }) {

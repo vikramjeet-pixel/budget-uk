@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, ArrowRight, Bookmark, BookmarkCheck, Flag } from "lucide-react";
 import { NearestStation } from "@/components/features/NearestStation";
 import type { Spot } from "@/types";
+import { trackSpotViewed } from "@/lib/analytics";
 
 interface SpotDrawerProps {
   spot: Spot | null;
@@ -29,6 +30,13 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
 
   useEffect(() => {
     setInternalOpen(!!spot);
+    if (spot?.id) {
+      trackSpotViewed({
+        spotId: spot.id,
+        category: spot.category,
+        neighbourhood: spot.neighbourhood,
+      });
+    }
   }, [spot]);
 
   const handleOpenChange = (open: boolean) => {
