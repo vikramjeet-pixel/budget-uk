@@ -13,13 +13,22 @@ import type { NextRequest } from "next/server";
  */
 export async function verifyAppCheck(req: NextRequest): Promise<boolean> {
   const token = req.headers.get("X-Firebase-AppCheck");
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
   if (!token) {
-    return process.env.NODE_ENV !== "production";
+    // If no token, only allow if not in production OR if App Check isn't configured yet
+    const allowed = process.env.NODE_ENV !== "production" || !siteKey;
+    if (!allowed) {
+      console.warn("App Check: Missing token in production with site key configured. Rejecting.");
+    }
+    return allowed;
   }
+
   try {
     await adminAppCheck.verifyToken(token);
     return true;
-  } catch {
+  } catch (error) {
+    console.error("App Check: Token verification failed:", error);
     return false;
   }
 }
