@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { FavouritesTab } from "@/components/features/FavouritesTab";
+import { SpotCardSkeleton } from "@/components/ui/Skeleton";
 
 export default function FavouritesPage() {
   const router = useRouter();
@@ -15,7 +16,14 @@ export default function FavouritesPage() {
   }, [user, loading, router]);
 
   if (loading || !user) {
-    return <div className="flex h-[50vh] items-center justify-center text-[#5f5f5d]">Loading...</div>;
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-12">
+        <div className="h-9 w-40 shimmer rounded mb-8" aria-hidden="true" />
+        <div className="flex flex-col gap-4">
+          {[0, 1, 2].map((i) => <SpotCardSkeleton key={i} />)}
+        </div>
+      </div>
+    );
   }
 
   return (

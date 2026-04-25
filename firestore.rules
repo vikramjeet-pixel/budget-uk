@@ -2,72 +2,106 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Auth Validation Helpers
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
+    // App Check enforced in production via Firebase console "Enforce" mode.
+    // This rule prevents bots from writing directly via the Firestore SDK,
+    // bypassing the Next.js API layer where rate limiting and spam checks run.
+    function hasAppCheck() {
+      return request.app != null;
+    }
+
     function isModOrAdmin() {
       let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
       return isAuthenticated() && (role == 'moderator' || role == 'admin');
     }
 
-    // 1. Spots
+    // ── 1. Spots ──────────────────────────────────────────────────────────────
+
     match /spots/{spotId} {
-      // Anyone can read if status is live
       allow read: if resource.data.status == 'live';
-      
-      // Server SDK bypasses these completely Native Firebase behaviour.
-      // We grant moderator/admin roles write parity from the client interface securely here:
-      allow write: if isModOrAdmin();
+      // Admin SDK bypasses rules entirely; this gate covers client SDK writes.
+      allow write: if isModOrAdmin() && hasAppCheck();
     }
 
-    // 2. Submissions
+    // ── 2. Submissions ────────────────────────────────────────────────────────
+
     match /submissions/{submissionId} {
       allow read: if true;
-      
-      // Authenticated users can create with their explicit uid safely bound into submittedBy
-      allow create: if isAuthenticated() 
+
+      allow create: if isAuthenticated()
+                    && hasAppCheck()
                     && request.resource.data.submittedBy == request.auth.uid
                     && request.resource.data.status != 'live';
-                    
-      // Same user cannot update vote counts/status parameters directly
-      allow update: if isAuthenticated() 
+
+      // Owner may update non-sensitive fields only; voteCount/status are server-only.
+      allow update: if isAuthenticated()
+                    && hasAppCheck()
                     && resource.data.submittedBy == request.auth.uid
-                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['voteCount', 'voters', 'status']));
+                    && (!request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasAny(['voteCount', 'voters', 'status']));
     }
 
-    // 3. Users
+    // ── 3. Users ──────────────────────────────────────────────────────────────
+
     match /users/{userId} {
-      // Users tightly bound natively to Read/Write over their singular document securely
-      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read:   if isAuthenticated() && request.auth.uid == userId;
       allow delete: if isAuthenticated() && request.auth.uid == userId;
-      
-      // Role field natively immutable from client
-      allow create: if isAuthenticated() 
+
+      allow create: if isAuthenticated()
+                    && hasAppCheck()
                     && request.auth.uid == userId
                     && request.resource.data.role == 'user';
-                    
-      allow update: if isAuthenticated() 
+
+      // Role field is immutable from the client.
+      allow update: if isAuthenticated()
+                    && hasAppCheck()
                     && request.auth.uid == userId
-                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+                    && (!request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasAny(['role']));
     }
 
-    // 4. Favourites Subcollection
+    // ── 4. Favourites ─────────────────────────────────────────────────────────
+
     match /favourites/{userId}/items/{itemId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow read:  if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated()
+                   && hasAppCheck()
+                   && request.auth.uid == userId;
     }
 
-    // 5. Global Votes Table
+    // ── 5. Votes ──────────────────────────────────────────────────────────────
+
     match /votes/{compositeId} {
-      // Only permit creation (Native double-vote lock leveraging composite bounds identically)
-      // Forcing the document string parameter suffix to mathematically map to Auth UUID:
-      allow create: if isAuthenticated() 
-                    && compositeId.matches('.*_' + request.auth.uid);
-                    
       allow read: if isAuthenticated();
-      allow update, delete: if false; // Flatly blocked from Client vectors.
+
+      // Composite key must end with the authenticated user's UID.
+      // App Check blocks bot-driven vote stuffing from direct SDK calls.
+      allow create: if isAuthenticated()
+                    && hasAppCheck()
+                    && compositeId.matches('.*_' + request.auth.uid);
+
+      allow update, delete: if false;
+    }
+
+    // ── 6. Rate limits (server-write only) ────────────────────────────────────
+
+    match /rateLimits/{docId} {
+      allow read, write: if false; // written exclusively by Admin SDK
+    }
+
+    // ── 7. Leaderboard (read-only) ────────────────────────────────────────────
+
+    match /leaderboard/{docId} {
+      allow read:  if true;
+      allow write: if false; // written exclusively by Cloud Function
     }
   }
 }

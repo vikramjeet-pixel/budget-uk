@@ -13,6 +13,8 @@ import { NeighbourhoodFilter } from "@/components/features/NeighbourhoodFilter";
 import { PriceDietaryFilter } from "@/components/features/PriceDietaryFilter";
 import { LocationToast } from "@/components/features/LocationToast";
 import { SpotDrawer } from "@/components/features/SpotDrawer";
+import { SpotCardSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 function HomePageContent() {
   const searchParams = useSearchParams();
@@ -123,11 +125,17 @@ function HomePageContent() {
         {/* Spot Feed Map */}
         <div className="flex flex-col px-4 pb-20 space-y-4">
           {loading ? (
-            <div className="w-full py-20 text-center text-[#5f5f5d]">
-              {showLocationToast ? "Awaiting manual bounds logic..." : "Mapping budget areas..."}
-            </div>
+            <>
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <SpotCardSkeleton key={i} />
+              ))}
+            </>
           ) : spots.length === 0 ? (
-            <div className="w-full py-20 text-center text-[#5f5f5d]">No spots found for this filter.</div>
+            <EmptyState
+              message="No spots found — try broadening your filters or exploring a different area."
+              cta="Clear filters"
+              ctaHref="/"
+            />
           ) : (
             spots.map((spot) => (
               <SpotCard 
@@ -154,7 +162,14 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-[#5f5f5d]">Loading Map...</div>}>
+    <Suspense fallback={
+      <div className="flex flex-col md:flex-row min-h-screen bg-[#fcfbf8]">
+        <div className="h-[60vh] w-full md:h-screen md:w-[60%] shimmer" />
+        <div className="flex flex-col gap-4 px-4 pt-4 md:w-[40%]">
+          {[0, 1, 2, 3, 4].map((i) => <SpotCardSkeleton key={i} />)}
+        </div>
+      </div>
+    }>
       <HomePageContent />
     </Suspense>
   );

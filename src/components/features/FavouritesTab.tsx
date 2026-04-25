@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { X } from "lucide-react";
 import { useFavourites, type SavedSpot } from "@/hooks/useFavourites";
 import { SpotCard } from "@/components/features/SpotCard";
+import { SpotCardSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 function FavouriteItem({ spot, onRemove, onNoteBlur }: {
   spot: SavedSpot;
@@ -49,24 +50,18 @@ export function FavouritesTab() {
   if (loading) {
     return (
       <div className="flex flex-col gap-4 py-4">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-32 rounded-xl bg-(--hover-tint) animate-pulse" />
-        ))}
+        {[0, 1, 2].map((i) => <SpotCardSkeleton key={i} />)}
       </div>
     );
   }
 
   if (spots.length === 0) {
     return (
-      <div className="py-16 text-center flex flex-col gap-2 items-center">
-        <p className="text-[16px] font-semibold text-[#1c1c1c]">No saves yet</p>
-        <Link
-          href="/"
-          className="text-[14px] text-[#5f5f5d] underline underline-offset-4 hover:text-[#1c1c1c] transition-colors"
-        >
-          explore the map →
-        </Link>
-      </div>
+      <EmptyState
+        message="You haven't saved any spots yet. Start exploring to build your list."
+        cta="Explore the map"
+        ctaHref="/"
+      />
     );
   }
 

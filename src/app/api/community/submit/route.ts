@@ -4,6 +4,7 @@ import { GeoPoint, FieldValue } from "firebase-admin/firestore";
 import { geohashForLocation } from "geofire-common";
 import { checkRateLimit, SUBMISSION_LIMIT, recordAuthFailure, isIpBlocked } from "@/lib/rateLimit";
 import { checkSpam } from "@/lib/spamDetect";
+import { verifyAppCheck } from "@/lib/verifyAppCheck";
 
 const MAX_PENDING = 3;
 
@@ -28,6 +29,11 @@ function getClientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  // ─── App Check ───────────────────────────────────────────────────────────
+  if (!(await verifyAppCheck(req))) {
+    return NextResponse.json({ error: "App Check verification failed" }, { status: 403 });
+  }
+
   // ─── IP block check ──────────────────────────────────────────────────────
   const clientIp = getClientIp(req);
   if (clientIp !== "unknown" && (await isIpBlocked(clientIp))) {

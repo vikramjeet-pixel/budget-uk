@@ -156,6 +156,24 @@
   }
 }
 
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@layer utilities {
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--hover-tint) 25%,
+      rgba(28, 28, 28, 0.08) 50%,
+      var(--hover-tint) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
 @layer utilities {
   .t-display {
     font-size: 60px;

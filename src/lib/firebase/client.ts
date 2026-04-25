@@ -13,7 +13,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:123456789012:web:abcdef1234567890",
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // ─── App Check (reCAPTCHA v3) ────────────────────────────────────────────────
 // Only initialize on the client side when the site key is available.
@@ -22,8 +22,8 @@ if (typeof window !== "undefined") {
   if (siteKey) {
     // Enable debug token in development (set FIREBASE_APPCHECK_DEBUG_TOKEN=true in browser console)
     if (process.env.NODE_ENV === "development") {
-      // @ts-expect-error — Firebase debug token flag
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
     initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(siteKey),
