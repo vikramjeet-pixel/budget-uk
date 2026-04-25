@@ -3,7 +3,10 @@ import { getFirestore, GeoPoint, FieldValue } from "firebase-admin/firestore";
 import * as geofire from "geofire-common";
 import * as dotenv from "dotenv";
 import { spots } from "../src/data/seed-london";
+import { studentHousingSpots } from "../src/data/student-housing";
 import { getBoroughForNeighbourhood } from "../src/data/london-locations";
+
+const allSpots = [...spots, ...studentHousingSpots];
 
 dotenv.config({ path: ".env.local" });
 
@@ -26,7 +29,7 @@ const db = getFirestore();
 db.settings({ ignoreUndefinedProperties: true });
 
 async function seed() {
-  console.log(`Initialising targeted seed sequence crossing ${spots.length} locational vectors directly overlapping London...`);
+  console.log(`Initialising targeted seed sequence crossing ${allSpots.length} locational vectors directly overlapping London...`);
   
   // Clean up existing system spots to avoid duplicates with missing images
   console.log("Cleaning up existing system-seeded spots...");
@@ -41,7 +44,7 @@ async function seed() {
   const batch = db.batch();
   
   let count = 0;
-  for (const rawSpot of spots) {
+  for (const rawSpot of allSpots) {
     // Strip boundaries creating seamless URI compatible node strings 
     const slug = rawSpot.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
     

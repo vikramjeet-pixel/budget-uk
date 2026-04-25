@@ -11,6 +11,7 @@ const CATEGORY_MAP = [
   { id: "housing", icon: "🏠", label: "Housing" },
   { id: "workspace", icon: "💻", label: "Workspaces" },
   { id: "coffee", icon: "☕", label: "Coffee" },
+  { id: "student-housing", icon: "🎓", label: "Student Housing" },
   { id: "accelerator", icon: "🚀", label: "Accelerators" },
   { id: "vc", icon: "💰", label: "VCs" },
   { id: "gym", icon: "💪", label: "Gym" },

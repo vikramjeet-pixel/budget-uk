@@ -14,6 +14,7 @@ import { NeighbourhoodFilter } from "@/components/features/NeighbourhoodFilter";
 import { PriceDietaryFilter } from "@/components/features/PriceDietaryFilter";
 import { LocationToast } from "@/components/features/LocationToast";
 import { SpotDrawer } from "@/components/features/SpotDrawer";
+import { EditorialCallout } from "@/components/features/EditorialCallout";
 import { SpotCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 
@@ -125,6 +126,13 @@ function HomePageContent() {
 
         {/* Spot Feed Map */}
         <div className="flex flex-col px-4 pb-20 space-y-4">
+          {currentCats.includes("grocery") && (
+            <EditorialCallout 
+              title="The Meal Deal Hack"
+              content="Tesco, Sainsbury's, and Boots all offer 'meal deals': a main, side, and drink for £3.50–£4.50. This is the cheapest consistent lunch in London for students and founders."
+            />
+          )}
+
           {loading ? (
             <>
               {[0, 1, 2, 3, 4, 5].map((i) => (

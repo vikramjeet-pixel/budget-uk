@@ -9,7 +9,8 @@ The primary public collection containing all approved, live locations.
 
 - **name** (`string`): The display name of the spot.
 - **slug** (`string`): URL-friendly unique identifier.
-- **category** (`enum`): `food | housing | coffee | workspace | gym | bars | grocery | accelerator | vc | entertainment | services`.
+- **category** (`enum`): `food | housing | student-housing | coffee | workspace | gym | bars | grocery | accelerator | vc | entertainment | services`.
+  - *Note: Student housing is stored within the primary `spots` collection for unified querying but is logically separated in the UI via the `student-housing` category tag.*
 - **neighbourhood** (`string`): General area identifier.
 - **postcodeDistrict** (`string`): e.g., "EC1".
 - **city** (`string`): Constrained to `"london"`.

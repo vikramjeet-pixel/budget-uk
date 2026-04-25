@@ -11,6 +11,7 @@ export type Category =
   | "accelerator"
   | "vc"
   | "entertainment"
+  | "student-housing"
   | "services";
 
 export type PriceTier = "free" | "£" | "££" | "£££" | "££££";
