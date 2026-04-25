@@ -9,6 +9,8 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { MapPin, Plus, X, Upload, ChevronLeft } from "lucide-react";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { auth, db } from "@/lib/firebase/client";
+import { getToken } from "firebase/app-check";
+import { app } from "@/lib/firebase/client";
 import { uploadSubmissionPhoto } from "@/lib/firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -832,12 +834,24 @@ export default function AddSpotPage() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("Not authenticated");
 
+      // Get App Check token if available
+      let appCheckToken: string | undefined;
+      try {
+        const { getAppCheck } = await import("firebase/app-check");
+        const appCheck = getAppCheck();
+        const result = await getToken(appCheck, false);
+        appCheckToken = result.token;
+      } catch (err) {
+        console.warn("App Check not available:", err);
+      }
+
       // Submit via API (server enforces cooldown atomically)
       const res = await fetch("/api/community/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...(appCheckToken && { "X-Firebase-AppCheck": appCheckToken }),
         },
         body: JSON.stringify({
           name: form.name,

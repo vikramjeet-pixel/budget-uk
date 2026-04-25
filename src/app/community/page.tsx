@@ -8,6 +8,7 @@ import { ChevronUp, Check, Clock, PlusCircle, TrendingUp } from "lucide-react";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { useSubmissions } from "@/hooks/useSubmissions";
 import { auth, db } from "@/lib/firebase/client";
+import { getToken } from "firebase/app-check";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
@@ -236,11 +237,23 @@ export default function CommunityPage() {
     setSubmittingIds((prev) => new Set(prev).add(submissionId));
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch("/api/community/vote", {
+      if (!token) return;
+
+      // Get App Check token if available
+      let appCheckToken: string | undefined;
+      try {
+        const { getAppCheck } = await import("firebase/app-check");
+        const appCheck = getAppCheck();
+        const result = await getToken(appCheck, false);
+        appCheckToken = result.token;
+      } catch (err) {
+        console.warn("App Check not available:", err);
+      }
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...(appCheckToken && { "X-Firebase-AppCheck": appCheckToken }),
         },
         body: JSON.stringify({ submissionId }),
       });
