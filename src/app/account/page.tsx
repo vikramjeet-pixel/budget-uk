@@ -10,7 +10,7 @@ import { uploadAvatar } from "@/lib/firebase/storage";
 import { updateEmail, updatePassword, updateProfile, deleteUser } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
-import { FavouritesTab } from "@/app/account/favourites/page";
+import { FavouritesTab } from "@/components/features/FavouritesTab";
 
 function AccountContent() {
   const router = useRouter();
