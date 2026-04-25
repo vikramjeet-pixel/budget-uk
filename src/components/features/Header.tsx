@@ -13,7 +13,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const navLinks = [
-  { name: "Map", href: "/map" },
+  { name: "Map", href: "/" },
   { name: "Spots", href: "/spots" },
   { name: "Free", href: "/free" },
   { name: "Transport", href: "/transport" },

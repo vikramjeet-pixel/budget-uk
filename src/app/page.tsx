@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import MapView from "@/components/features/Map";
+import dynamic from "next/dynamic";
+const MapView = dynamic(() => import("@/components/features/Map"), { ssr: false });
 import { useSpots } from "@/hooks/useSpots";
 import { useNearbySpots } from "@/hooks/useNearbySpots";
 import { Card } from "@/components/ui/Card";
