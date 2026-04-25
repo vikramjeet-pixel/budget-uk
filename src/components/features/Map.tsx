@@ -21,9 +21,9 @@ const LONDON_BOUNDS: [[number, number], [number, number]] = [
 
 const parseCategoryIcon = (category: string) => {
   const map: Record<string, string> = {
-    food: "🍽️", housing: "🏠", workspace: "💻", coffee: "☕", 
+    food: "🍽️", housing: "🏠", "student-housing": "🎓", workspace: "💻", coffee: "☕", 
     accelerator: "🚀", vc: "💰", gym: "💪", bars: "🍺", 
-    grocery: "🛒", entertainment: "🎭", services: "✂️", free: "🎟️"
+    grocery: "🛒", entertainment: "🎭", vintage: "🧥", services: "✂️", free: "🎟️"
   };
   return map[category] || "📍";
 };
@@ -32,14 +32,17 @@ const getCategoryStyle = (category: string) => {
   const styles: Record<string, string> = {
     food: "bg-[#ef4444]",           // Red
     housing: "bg-[#10b981]",        // Emerald
+    "student-housing": "bg-[#6366f1]", // Indigo
     workspace: "bg-[#0ea5e9]",      // Sky Blue
-    coffee: "bg-[#713f12]",         // Brown
-    accelerator: "bg-[#f97316]",    // Orange
+    coffee: "bg-[#7c2d12]",         // Deep Brown
+    accelerator: "bg-[#f59e0b]",    // Amber
     vc: "bg-[#8b5cf6]",             // Violet
     gym: "bg-[#1c1c1c]",            // Black
     bars: "bg-[#f43f5e]",           // Rose
     grocery: "bg-[#0d9488]",        // Teal
     entertainment: "bg-[#d946ef]",  // Fuchsia
+    vintage: "bg-[#78350f]",        // Vintage Tan/Brown
+    services: "bg-[#64748b]",       // Slate
     free: "bg-[#22c55e]",           // Green
   };
   return styles[category] || "bg-[#1c1c1c]";
@@ -204,22 +207,26 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
       </Map>
 
       {/* Map Legend */}
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 z-10 flex-col gap-2 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[160px] animate-in fade-in slide-in-from-left-4 duration-500">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 z-10 flex-col gap-1.5 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[170px] animate-in fade-in slide-in-from-left-4 duration-500 overflow-y-auto max-h-[90vh]">
         <h4 className="text-[11px] font-bold text-[#1c1c1c] uppercase tracking-wider mb-1 opacity-50 px-1">Legend</h4>
         {[
           { label: "Food", color: "bg-[#ef4444]" },
           { label: "Housing", color: "bg-[#10b981]" },
-          { label: "Work Spots", color: "bg-[#0ea5e9]" },
-          { label: "Coffee", color: "bg-[#713f12]" },
-          { label: "Accelerators", color: "bg-[#f97316]" },
+          { label: "Student Housing", color: "bg-[#6366f1]" },
+          { label: "Work Spaces", color: "bg-[#0ea5e9]" },
+          { label: "Coffee", color: "bg-[#7c2d12]" },
+          { label: "Accelerators", color: "bg-[#f59e0b]" },
           { label: "VCs", color: "bg-[#8b5cf6]" },
           { label: "Gym", color: "bg-[#1c1c1c]" },
           { label: "Bars", color: "bg-[#f43f5e]" },
-          { label: "Grocery", color: "bg-[#0d9488]" }
+          { label: "Grocery", color: "bg-[#0d9488]" },
+          { label: "Entertainment", color: "bg-[#d946ef]" },
+          { label: "Vintage", color: "bg-[#78350f]" },
+          { label: "Services", color: "bg-[#64748b]" }
         ].map(item => (
-          <div key={item.label} className="flex items-center gap-3 px-1 py-0.5 group cursor-default">
-            <div className={cn("w-4 h-4 rounded-[6px] shrink-0 border-2 border-white shadow-sm transition-transform group-hover:scale-110", item.color)} />
-            <span className="text-[13px] font-medium text-[#1c1c1c] leading-none tracking-tight">{item.label}</span>
+          <div key={item.label} className="flex items-center gap-2.5 px-1 py-0.5 group cursor-default">
+            <div className={cn("w-3.5 h-3.5 rounded-[5px] shrink-0 border-2 border-white shadow-sm transition-transform group-hover:scale-110", item.color)} />
+            <span className="text-[12px] font-medium text-[#1c1c1c] leading-none tracking-tight">{item.label}</span>
           </div>
         ))}
       </div>
