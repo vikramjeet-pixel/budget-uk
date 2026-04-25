@@ -54,9 +54,14 @@ export function SpotCard({
 
           <div className="flex flex-col justify-start grow gap-2 h-full">
             <div>
-              <h3 className="t-h3 text-[#1c1c1c] leading-tight mb-1">
+              <h3 className="t-h3 text-[#1c1c1c] leading-tight mb-0.5">
                 {highlightText(spot.name, query)}
               </h3>
+              {spot.approxPriceGbp !== undefined && (
+                <div className="text-[12px] text-[#5f5f5d] font-medium mb-1.5 opacity-80">
+                  {spot.priceTier === "free" ? "Always Free" : `~£${spot.approxPriceGbp} ${spot.category === "food" ? "per meal" : spot.category === "coffee" ? "per cup" : ""}`}
+                </div>
+              )}
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="category">{spot.neighbourhood}</Badge>
                 <Badge variant={spot.priceTier === "free" ? "free" : "tier"}>

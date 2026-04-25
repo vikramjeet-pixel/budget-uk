@@ -18,7 +18,9 @@ The primary public collection containing all approved, live locations.
 - **geohash** (`string`): Geofire indexing hash for boundary and proximity searches.
 - **priceTier** (`enum`): `free | £ | ££ | £££ | ££££`.
 - **approxPriceGbp** (`number`): Optional numeric approximation.
-- **tags** (`string[]`): Search vectors e.g. `[dietary, halal, veggie, vegan, student]`.
+- **tags** (`string[]`): Search and filtering vectors.
+  - **Work/Study Tags**: `quiet-study` (silence required), `power-outlets` (laptop charging available), `wifi` (verified connectivity), `long-hours` (8hr+ stays permitted), `meetings` (professional catch-ups), `phone-calls` (conversations allowed), `sprints` (focused team blocks).
+  - **General Tags**: `[dietary, halal, veggie, vegan, student, fashion, market, historic]`.
 - **googlePlaceId** (`string | null`): For mapping correlation.
 - **photoUrl** (`string`): Primary visual asset (Storage link).
 - **description** (`string`): Full context text block.
