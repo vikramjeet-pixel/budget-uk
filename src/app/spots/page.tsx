@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { distanceBetween } from "geofire-common";
 import { useSpots } from "@/hooks/useSpots";
@@ -103,7 +103,7 @@ function SpotsGridContent() {
   // TODO: When the spot index exceeds ~500 docs, replace this client-side filter
   // with an Algolia or Typesense call. Swap point: src/hooks/useSpots.ts —
   // remove the onSnapshot + client filter and call the search client instead.
-  const filteredSpots = React.useMemo(() => {
+  const filteredSpots = useMemo(() => {
     if (!debouncedQuery) return rawSpots;
     
     const query = debouncedQuery.toLowerCase().trim();
