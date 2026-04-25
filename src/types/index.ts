@@ -98,6 +98,8 @@ export interface Submission {
   voteCount: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  /** Optional website for the submission */
+  website?: string | null;
 }
 
 export interface Favourite {

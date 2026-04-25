@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { highlightText } from "@/lib/highlight";
+import { ExternalLink } from "lucide-react";
 import type { Spot } from "@/types";
 
 interface SpotCardProps {
@@ -78,15 +79,16 @@ export function SpotCard({
                 )}
               </div>
 
-              {spot.website && (
+              {(spot.website || spot.placeData?.website) && (
                 <a 
-                  href={spot.website} 
+                  href={spot.website || spot.placeData?.website || "#"} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-[14px] text-[#5f5f5d] hover:text-[#1c1c1c] underline-offset-4 hover:underline mb-2 block w-fit"
+                  className="flex items-center gap-1.5 text-[13px] text-[#1c1c1c] font-medium hover:text-[#565] underline-offset-4 hover:underline mb-2 block w-fit bg-[#f0ede4] px-2 py-0.5 rounded-sm border border-[#e5e0d5] transition-colors"
                 >
-                  {spot.website.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+                  <span>Visit Website</span>
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </div>

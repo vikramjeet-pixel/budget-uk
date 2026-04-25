@@ -110,6 +110,7 @@ export async function POST(req: NextRequest) {
     description,
     tips,
     tags,
+    website,
   } = await req.json();
 
   // ─── Spam detection ──────────────────────────────────────────────────────
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
     submittedBy: uid,
     voters: [],
     voteCount: 0,
+    website: website || null,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   };

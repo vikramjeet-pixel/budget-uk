@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
         status: "live",
         submittedBy: data.submittedBy,
         voteCount: 0,
+        website: data.website ?? null,
         createdAt: data.createdAt,
         updatedAt: FieldValue.serverTimestamp(),
       });
