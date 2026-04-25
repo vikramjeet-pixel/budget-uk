@@ -28,6 +28,23 @@ const parseCategoryIcon = (category: string) => {
   return map[category] || "📍";
 };
 
+const getCategoryStyle = (category: string) => {
+  const styles: Record<string, string> = {
+    food: "bg-[#ef4444]",           // Red
+    housing: "bg-[#10b981]",        // Emerald
+    workspace: "bg-[#0ea5e9]",      // Sky Blue
+    coffee: "bg-[#713f12]",         // Brown
+    accelerator: "bg-[#f97316]",    // Orange
+    vc: "bg-[#8b5cf6]",             // Violet
+    gym: "bg-[#1c1c1c]",            // Black
+    bars: "bg-[#f43f5e]",           // Rose
+    grocery: "bg-[#0d9488]",        // Teal
+    entertainment: "bg-[#d946ef]",  // Fuchsia
+    free: "bg-[#22c55e]",           // Green
+  };
+  return styles[category] || "bg-[#1c1c1c]";
+};
+
 export function MapView({ className, spots = [], activeSpotId, userLocation, onMarkerClick }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   
@@ -121,7 +138,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
 
         {clusters.map(cluster => {
           const [longitude, latitude] = cluster.geometry.coordinates;
-          const { cluster: isCluster, point_count: pointCount, spot, spotId } = cluster.properties as any;
+          const { cluster: isCluster, point_count: pointCount, spot, spotId, category } = cluster.properties as any;
 
           // Clustered State natively rolling up bounds dynamically
           if (isCluster) {
@@ -137,8 +154,11 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
                   mapRef.current?.flyTo({ center: [longitude, latitude], zoom: expansionZoom, duration: 500 });
                 }}
               >
-                <div className="flex items-center justify-center bg-[#1c1c1c] text-[#fcfbf8] rounded-[9999px] w-8 h-8 font-medium text-[12px] shadow-[var(--inset-dark)] border border-[#1c1c1c] cursor-pointer hover:scale-110 transition-transform">
-                  {pointCount}
+                <div className="group relative flex items-center justify-center cursor-pointer hover:z-50 transition-transform hover:scale-110">
+                  <div className="absolute -inset-[2px] bg-white/60 rounded-full blur-[1px]" />
+                  <div className="relative flex items-center justify-center bg-[#1c1c1c] text-[#fcfbf8] rounded-full w-9 h-9 font-bold text-[13px] border-2 border-white shadow-lg">
+                    {pointCount}
+                  </div>
                 </div>
               </Marker>
             );
@@ -156,22 +176,53 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
               }}
               style={{ zIndex: activeSpotId === spotId ? 50 : 10 }}
             >
-              <div className={cn(
-                "flex items-center justify-center gap-1.5 bg-[#f7f4ed] rounded-[9999px] px-3 py-1.5 text-[12px] font-medium transition-all shadow-[var(--inset-dark)] cursor-pointer whitespace-nowrap",
-                activeSpotId === spotId 
-                  ? "scale-110 border border-[#1c1c1c]" // Scaling 1.1 with Charcoal lines
-                  : "scale-100 border border-[var(--border-passive)] hover:border-[#1c1c1c]" // Standard cream bordered
-              )}>
-                <span className="text-[14px] leading-none">{parseCategoryIcon(cluster.properties.category)}</span>
-                <span className="text-[#1c1c1c] leading-none tracking-tight">
-                  {cluster.properties.priceTier === 'free' ? 'Free' : cluster.properties.priceTier}
-                </span>
+              <div 
+                className={cn(
+                  "group relative flex items-center justify-center cursor-pointer transition-all duration-200",
+                  activeSpotId === spotId ? "scale-125 z-50" : "scale-100 hover:scale-110"
+                )}
+              >
+                {/* Glow/Border Ring */}
+                <div className="absolute -inset-[2px] bg-white/40 rounded-xl blur-[1px] group-hover:bg-white/60" />
+                
+                {/* Square Marker */}
+                <div 
+                  className={cn(
+                    "relative flex items-center justify-center w-10 h-10 rounded-xl border-2 border-white shadow-md transition-shadow",
+                    getCategoryStyle(category),
+                    activeSpotId === spotId ? "shadow-xl border-[3px]" : "shadow-sm"
+                  )}
+                >
+                  <span className="text-[20px] drop-shadow-sm select-none">
+                    {parseCategoryIcon(category)}
+                  </span>
+                </div>
               </div>
             </Marker>
           );
         })}
-
       </Map>
+
+      {/* Map Legend */}
+      <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-2 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[160px] animate-in fade-in slide-in-from-left-4 duration-500">
+        <h4 className="text-[11px] font-bold text-[#1c1c1c] uppercase tracking-wider mb-1 opacity-50 px-1">Legend</h4>
+        {[
+          { label: "Food", color: "bg-[#ef4444]" },
+          { label: "Housing", color: "bg-[#10b981]" },
+          { label: "Work Spots", color: "bg-[#0ea5e9]" },
+          { label: "Coffee", color: "bg-[#713f12]" },
+          { label: "Accelerators", color: "bg-[#f97316]" },
+          { label: "VCs", color: "bg-[#8b5cf6]" },
+          { label: "Gym", color: "bg-[#1c1c1c]" },
+          { label: "Bars", color: "bg-[#f43f5e]" },
+          { label: "Grocery", color: "bg-[#0d9488]" }
+        ].map(item => (
+          <div key={item.label} className="flex items-center gap-3 px-1 py-0.5 group cursor-default">
+            <div className={cn("w-4 h-4 rounded-[6px] shrink-0 border-2 border-white shadow-sm transition-transform group-hover:scale-110", item.color)} />
+            <span className="text-[13px] font-medium text-[#1c1c1c] leading-none tracking-tight">{item.label}</span>
+          </div>
+        ))}
+      </div>
 
       <div className="absolute bottom-2 right-2 bg-[#f7f4ed] border border-[var(--border-passive)] text-[#1c1c1c] text-[10px] px-2 py-[2px] rounded-[4px] shadow-sm z-10 opacity-80 hover:opacity-100 transition-opacity flex gap-1">
         <a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">OpenFreeMap</a>

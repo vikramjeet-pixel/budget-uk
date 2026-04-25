@@ -1,10 +1,10 @@
+import "@/lib/env";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "../styles/globals.css";
 import { Header } from "@/components/features/Header";
 import { Footer } from "@/components/features/Footer";
-import { StatusBanner } from "@/components/features/StatusBanner";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CookieConsentBanner } from "@/components/features/CookieConsentBanner";
 import { InstallPrompt } from "@/components/features/InstallPrompt";
@@ -60,7 +60,6 @@ export default function RootLayout({
       {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
       <body className="min-h-full flex flex-col bg-[#f7f4ed]">
         <AuthProvider>
-          <StatusBanner />
           <Header />
           <main className="flex-1 w-full pt-[72px]">
             {children}

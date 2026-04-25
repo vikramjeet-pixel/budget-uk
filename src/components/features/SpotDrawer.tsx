@@ -135,7 +135,12 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
 
               {/* Name + meta badges */}
               <div className="flex flex-col gap-3">
-                <h2 className="t-h2 text-[#1c1c1c] tracking-tight">{spot.name}</h2>
+                <Dialog.Title className="t-h2 text-[#1c1c1c] tracking-tight">
+                  {spot.name}
+                </Dialog.Title>
+                <Dialog.Description className="sr-only">
+                  Details about {spot.name} in {spot.neighbourhood}
+                </Dialog.Description>
                 <div className="flex items-center flex-wrap gap-2">
                   <Badge variant="category">{spot.neighbourhood}</Badge>
                   {spot.postcodeDistrict && (

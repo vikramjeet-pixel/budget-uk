@@ -2,8 +2,8 @@
 
 import React, { useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Map, { type MapRef, Marker, NavigationControl } from "react-map-gl/maplibre";
-import "maplibre-gl/dist/maplibre-gl.css";
+import dynamic from "next/dynamic";
+const LocationPickerMap = dynamic(() => import("@/components/features/LocationPickerMap"), { ssr: false });
 import { z } from "zod";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { MapPin, Plus, X, Upload, ChevronLeft } from "lucide-react";
@@ -266,7 +266,7 @@ function Step2({
   update: (p: Partial<FormState>) => void;
   errors: Record<string, string>;
 }) {
-  const mapRef = useRef<MapRef>(null);
+  const mapRef = React.useRef<any>(null);
   const [postcode, setPostcode] = useState("");
   const [postcodeError, setPostcodeError] = useState("");
   const [geocoding, setGeocoding] = useState(false);
@@ -356,36 +356,20 @@ function Step2({
 
       {/* Map */}
       <div className="rounded-xl overflow-hidden border border-passive" style={{ height: 340 }}>
-        <Map
-          ref={mapRef}
-          initialViewState={LONDON_CENTER}
+        <LocationPickerMap 
+          latitude={form.latitude}
+          longitude={form.longitude}
+          onMapClick={handleMapClick}
+          onDragEnd={(e: any) => {
+            const { lat, lng } = e.lngLat;
+            update({ latitude: lat, longitude: lng });
+            reverseGeocode(lat, lng);
+          }}
+          mapRef={mapRef}
+          londonCenter={LONDON_CENTER}
           mapStyle={MAP_STYLE}
-          maxBounds={LONDON_BOUNDS}
-          attributionControl={false}
-          minPitch={0}
-          maxPitch={0}
-          dragRotate={false}
-          style={{ width: "100%", height: "100%" }}
-          onClick={handleMapClick}
-          cursor={form.latitude ? "grab" : "crosshair"}
-        >
-          <NavigationControl position="top-right" showCompass={false} />
-          {form.latitude !== null && form.longitude !== null && (
-            <Marker
-              latitude={form.latitude}
-              longitude={form.longitude}
-              anchor="bottom"
-              draggable
-              onDragEnd={(e) => {
-                const { lat, lng } = e.lngLat;
-                update({ latitude: lat, longitude: lng });
-                reverseGeocode(lat, lng);
-              }}
-            >
-              <MapPin className="w-8 h-8 text-[#1c1c1c] fill-[#1c1c1c] drop-shadow-sm" />
-            </Marker>
-          )}
-        </Map>
+          londonBounds={LONDON_BOUNDS}
+        />
       </div>
       {errors.latitude && (
         <p className="text-[12px] text-red-500">{errors.latitude}</p>
