@@ -18,6 +18,7 @@ const CATEGORY_MAP = [
   { id: "bars", icon: "🍺", label: "Bars" },
   { id: "grocery", icon: "🛒", label: "Grocery" },
   { id: "entertainment", icon: "🎭", label: "Entertainment" },
+  { id: "vintage", icon: "🧥", label: "Vintage" },
   { id: "services", icon: "✂️", label: "Services" },
   { id: "free", icon: "🎟️", label: "Free" }
 ];
