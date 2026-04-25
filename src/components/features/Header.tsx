@@ -121,14 +121,18 @@ export function Header() {
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>
               </DropdownMenu.Root>
-              <Button variant="primary">Add a Spot</Button>
+              <Link href="/community/add">
+                <Button variant="primary">Add a Spot</Button>
+              </Link>
             </>
           ) : (
             <>
               <Link href="/login" passHref>
                 <Button variant="ghost">Log In</Button>
               </Link>
-              <Button variant="primary">Add a Spot</Button>
+              <Link href="/community/add">
+                <Button variant="primary">Add a Spot</Button>
+              </Link>
             </>
           )}
         </div>
@@ -165,14 +169,18 @@ export function Header() {
                       <Button variant="ghost" className="w-full justify-center">Account</Button>
                     </Link>
                     <Button variant="ghost" className="w-full justify-center" onClick={() => signOutUser()}>Sign Out</Button>
-                    <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
+                    <Link href="/community/add" className="w-full">
+                      <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
+                    </Link>
                   </>
                 ) : (
                   <>
                     <Link href="/login" className="w-full">
                       <Button variant="ghost" className="w-full justify-center">Log In</Button>
                     </Link>
-                    <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
+                    <Link href="/community/add" className="w-full">
+                      <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
+                    </Link>
                   </>
                 )}
               </li>

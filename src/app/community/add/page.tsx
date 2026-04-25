@@ -60,7 +60,11 @@ const step1Schema = z.object({
   name: z.string().min(2, "At least 2 characters").max(80, "Too long"),
   neighbourhood: z.string().min(2, "At least 2 characters").max(60, "Too long"),
   priceTier: z.string().min(1, "Select a price tier"),
-  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  website: z.string().optional().refine((val) => {
+    if (!val) return true;
+    // Allow any string that looks like a domain or URL
+    return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(val);
+  }, "Enter a valid website URL (e.g. example.com)"),
 });
 
 const step2Schema = z.object({
@@ -818,11 +822,10 @@ export default function AddSpotPage() {
         return;
       }
 
-      // Upload photo if selected (using a temp ID for the storage path)
+      // Upload photo if selected (using user UID for the storage path)
       let photoUrl: string | null = null;
       if (form.photoFile) {
-        const tempId = crypto.randomUUID();
-        photoUrl = await uploadSubmissionPhoto(form.photoFile, tempId);
+        photoUrl = await uploadSubmissionPhoto(form.photoFile, user.uid);
       }
 
       // Get auth token for API route
@@ -850,7 +853,9 @@ export default function AddSpotPage() {
           description: form.description,
           tips: form.tips,
           tags: form.tags,
-          website: form.website || null,
+          website: form.website 
+            ? (form.website.startsWith("http") ? form.website : `https://${form.website}`) 
+            : null,
         }),
       });
 

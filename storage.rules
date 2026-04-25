@@ -33,11 +33,11 @@ service firebase.storage {
     }
 
     // 2. Submission Photos
-    match /submissions/{submissionId}/{filename} {
+    match /submissions/{userId}/{filename} {
       allow read: if true;
-      // Writable mapping only if the authenticated user explicitly owns the submission Document
+      // Writable mapping only if the authenticated user owns the path
       allow write: if isAuthenticated() 
-                   && firestore.get(/databases/(default)/documents/submissions/$(submissionId)).data.submittedBy == request.auth.uid
+                   && request.auth.uid == userId
                    && isImage()
                    && isValidSize(3);
     }
