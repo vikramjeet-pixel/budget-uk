@@ -204,7 +204,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
       </Map>
 
       {/* Map Legend */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-2 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[160px] animate-in fade-in slide-in-from-left-4 duration-500">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 z-10 flex-col gap-2 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[160px] animate-in fade-in slide-in-from-left-4 duration-500">
         <h4 className="text-[11px] font-bold text-[#1c1c1c] uppercase tracking-wider mb-1 opacity-50 px-1">Legend</h4>
         {[
           { label: "Food", color: "bg-[#ef4444]" },
