@@ -63,6 +63,12 @@ export interface Spot {
   placeData?: PlaceData;
 }
 
+export type SerializedSpot = Omit<Spot, "location" | "createdAt" | "updatedAt"> & {
+  location: { latitude: number; longitude: number };
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface User {
   uid?: string;
   displayName: string;

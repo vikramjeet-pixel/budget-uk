@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { highlightText } from "@/lib/highlight";
 import { ExternalLink } from "lucide-react";
-import type { Spot } from "@/types";
+import type { Spot, SerializedSpot } from "@/types";
 
 interface SpotCardProps {
-  spot: Spot & { distance?: number };
+  spot: (Spot | SerializedSpot) & { distance?: number };
   isActive?: boolean;
   onClick?: () => void;
   onMouseEnter?: () => void;

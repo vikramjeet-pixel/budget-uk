@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { adminDb } from "@/lib/firebase/admin";
 import Link from "next/link";
-import { Spot } from "@/types";
+import { Spot, SerializedSpot } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
@@ -28,7 +28,7 @@ interface PageProps {
 }
 
 // Serialize Firestore objects (GeoPoint, Timestamp) into plain objects for Client Components
-function serializeSpot(docId: string, data: any): Spot {
+function serializeSpot(docId: string, data: any): SerializedSpot {
   return {
     ...data,
     id: docId,
@@ -38,11 +38,11 @@ function serializeSpot(docId: string, data: any): Spot {
     },
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
     updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt,
-  } as Spot;
+  };
 }
 
 // Fetch spot by slug server-side
-async function getSpotBySlug(slug: string): Promise<Spot | null> {
+async function getSpotBySlug(slug: string): Promise<SerializedSpot | null> {
   const snapshot = await adminDb
     .collection("spots")
     .where("slug", "==", slug)
@@ -57,7 +57,7 @@ async function getSpotBySlug(slug: string): Promise<Spot | null> {
 }
 
 // Fetch nearby spots server-side
-async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
+async function getNearbySpots(spot: SerializedSpot, limit = 4): Promise<SerializedSpot[]> {
   const center: [number, number] = [spot.location.latitude, spot.location.longitude];
   const radiusInM = 2000; 
   const bounds = geofire.geohashQueryBounds(center, radiusInM);

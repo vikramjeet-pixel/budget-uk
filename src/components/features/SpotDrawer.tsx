@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Globe, ArrowRight, Bookmark, BookmarkCheck, Flag } from "lucide-react";
 import { NearestStation } from "@/components/features/NearestStation";
 import { getDirectionsUrl } from "@/lib/maps/getDirectionsUrl";
-import type { Spot } from "@/types";
+import type { Spot, SerializedSpot } from "@/types";
 import { trackSpotViewed } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 interface SpotDrawerProps {
-  spot: Spot | null;
+  spot: Spot | SerializedSpot | null;
   onClose: () => void;
 }
 
