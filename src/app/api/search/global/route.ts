@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
-import { Spot } from "@/types";
+
+let cachedSpots: any[] = [];
+let lastFetched = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -11,22 +14,23 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // We can't do a partial string search easily in Firestore without a 3rd party tool,
-    // so we'll do a simple prefix search or just fetch some and filter.
-    // For 550 spots, we can actually fetch all live names and slugs and filter in memory,
-    // then cache it.
-    const snapshot = await adminDb
-      .collection("spots")
-      .where("status", "==", "live")
-      .select("name", "slug", "city", "neighbourhood")
-      .get();
-
-    const results = snapshot.docs
-      .map(doc => ({
+    const now = Date.now();
+    if (now - lastFetched > CACHE_TTL || cachedSpots.length === 0) {
+      const snapshot = await adminDb
+        .collection("spots")
+        .where("status", "==", "live")
+        .select("name", "slug", "city", "neighbourhood")
+        .get();
+      
+      cachedSpots = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }))
-      .filter((spot: any) => 
+      }));
+      lastFetched = now;
+    }
+
+    const results = cachedSpots
+      .filter((spot) => 
         spot.name.toLowerCase().includes(q) || 
         spot.neighbourhood.toLowerCase().includes(q)
       )

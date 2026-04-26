@@ -13,6 +13,7 @@ import { NearestStation } from "@/components/features/NearestStation";
 import { getDirectionsUrl } from "@/lib/maps/getDirectionsUrl";
 import type { Spot } from "@/types";
 import { trackSpotViewed } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 
 interface SpotDrawerProps {
   spot: Spot | null;
@@ -86,212 +87,109 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
   return (
     <Dialog.Root open={internalOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-transparent" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px] md:bg-transparent" />
 
         <Dialog.Content
-          className="fixed z-50 flex flex-col bg-[#fcfbf8] shadow-focus outline-none
-                     w-full bottom-0 top-[20vh] rounded-t-2xl px-6 py-6
-                     md:right-0 md:top-0 md:bottom-0 md:h-full md:w-120 md:rounded-none overflow-y-auto"
+          className="fixed z-50 flex flex-col bg-[#fcfbf8] shadow-2xl outline-none
+                     w-[calc(100%-32px)] left-4 right-4 bottom-4 rounded-2xl p-6
+                     md:left-auto md:right-8 md:bottom-8 md:top-auto md:w-[380px] md:max-h-[85vh] md:rounded-2xl border border-passive
+                     animate-in fade-in slide-in-from-right-8 duration-300 overflow-y-auto"
           onPointerDownOutside={(e) => {
             e.detail.originalEvent.preventDefault();
             onClose();
           }}
         >
-          {/* Mobile grab handle */}
-          <div className="w-12 h-1.5 bg-passive rounded-full mx-auto mb-4 md:hidden" />
-
           {spot && (
-            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 md:slide-in-from-right-8 duration-300">
-
-              {/* Top bar: close + save */}
-              <div className="flex justify-between items-center -mt-2 -mx-2 md:mt-0 md:mx-0">
+            <div className="flex flex-col gap-5">
+              {/* Header with Selected Label */}
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-[#5f5f5d] uppercase tracking-[0.1em] opacity-60">
+                    Selected
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[24px]">
+                      {spot.category === "food" ? "🍽️" : spot.category === "coffee" ? "☕" : "📍"}
+                    </span>
+                    <Dialog.Title className="text-[20px] font-bold text-[#1c1c1c] tracking-tight leading-tight">
+                      {spot.name}
+                    </Dialog.Title>
+                  </div>
+                </div>
                 <button
                   onClick={onClose}
-                  className="p-2 text-[#5f5f5d] hover:text-[#1c1c1c] rounded-full transition-colors"
+                  className="p-2 -mr-2 -mt-2 text-[#5f5f5d] hover:text-[#1c1c1c] rounded-full transition-colors"
                 >
-                  <ArrowRight className="w-5 h-5 hidden md:block" />
-                  <span className="md:hidden text-2xl leading-none">&times;</span>
+                  <span className="text-2xl leading-none">&times;</span>
                 </button>
-                <Button
-                  variant="pill"
-                  size="sm"
-                  onClick={handleSaveClick}
-                  className={isSaved ? "bg-[#1c1c1c] text-[#fcfbf8] border-[#1c1c1c]" : ""}
-                >
-                  {isSaved
-                    ? <BookmarkCheck className="w-4 h-4 mr-1.5" />
-                    : <Bookmark className="w-4 h-4 mr-1.5" />}
-                  {isSaved ? "Saved" : "Save"}
-                </Button>
               </div>
 
-              {/* Hero photo */}
-              <div className="w-full h-48 md:h-64 rounded-lg border border-passive overflow-hidden bg-passive shrink-0 relative">
-                {spot.photoUrl ? (
-                  <img src={spot.photoUrl} alt={spot.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-[#5f5f5d] text-sm">
-                    No photo available
-                  </div>
-                )}
-              </div>
-
-              {/* Name + meta badges */}
-              <div className="flex flex-col gap-3">
-                <Dialog.Title className="t-h2 text-[#1c1c1c] tracking-tight">
-                  {spot.name}
-                </Dialog.Title>
-                <Dialog.Description className="sr-only">
-                  Details about {spot.name} in {spot.neighbourhood}
-                </Dialog.Description>
-                <div className="flex items-center flex-wrap gap-2">
-                  <Badge variant="category">{spot.neighbourhood}</Badge>
-                  {spot.postcodeDistrict && (
-                    <Badge variant="category">{spot.postcodeDistrict}</Badge>
-                  )}
-                  <Badge variant={spot.priceTier === "free" ? "free" : "tier"}>
-                    {spot.priceTier === "free" ? "Free" : spot.priceTier}
-                  </Badge>
+              {/* Address/Meta */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-[13px] text-[#5f5f5d] font-medium">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{spot.neighbourhood} {spot.postcodeDistrict ? `· ${spot.postcodeDistrict}` : ""}</span>
                 </div>
+                <div className="text-[13px] font-bold text-green-600">
+                  {spot.priceTier === "free" ? "Free" : spot.priceTier}
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-[14px] text-[#5f5f5d] leading-relaxed line-clamp-4">
+                {spot.description}
+              </p>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-1.5">
+                <Badge variant="category" className="bg-[#ede9e1] border-none text-[11px] py-0.5">
+                  {spot.category}
+                </Badge>
+                {spot.tags?.slice(0, 3).map(tag => (
+                  <Badge key={tag} variant="outline" className="text-[11px] py-0.5 border-passive text-[#5f5f5d]">
+                    {tag}
+                  </Badge>
+                ))}
               </div>
 
               <hr className="border-passive" />
 
               {/* Actions */}
-              <div className="flex flex-col gap-3">
-                {spot.website ? (
-                  <a 
-                    href={spot.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full"
-                  >
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]"
-                    >
-                      <Globe className="w-4 h-4 mr-2" />
-                      Visit Website
-                    </Button>
-                  </a>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    <Button 
-                      variant="ghost" 
-                      disabled
-                      className="w-full justify-center py-4 h-auto border border-dashed text-[#5f5f5d] opacity-50"
-                    >
-                      <Globe className="w-4 h-4 mr-2" />
-                      Visit Website
-                    </Button>
-                    <span className="text-[11px] text-[#5f5f5d]/60 text-center font-medium">Website unavailable</span>
-                  </div>
-                )}
-
+              <div className="flex gap-3 mt-1">
+                <Button 
+                  variant="primary" 
+                  className="flex-1 justify-center py-5 h-auto bg-[#2d5a4c] hover:bg-[#23473c] text-white rounded-xl font-bold text-[14px]"
+                  onClick={viewFullPage}
+                >
+                  View Details
+                </Button>
                 <a 
                   href={getDirectionsUrl(spot)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full"
+                  className="flex-1"
                 >
-                  <Button variant="ghost" className="w-full justify-center py-4 h-auto border border-[var(--border-interactive)] text-[#1c1c1c] rounded-[6px] hover:bg-[#f7f4ed]">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    Get directions
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-center py-5 h-auto border border-passive bg-[#f0ede4] text-[#1c1c1c] rounded-xl font-bold text-[14px] hover:bg-[#e5e0d5]"
+                  >
+                    <MapPin className="w-4 h-4 mr-2 opacity-60" />
+                    Directions
                   </Button>
                 </a>
               </div>
 
-              {/* Description */}
-              <p className="t-body text-[#1c1c1c] leading-relaxed">{spot.description}</p>
-
-              {/* Tips */}
-              {spot.tips.length > 0 && (
-                <div className="bg-[#f7f4ed] p-4 rounded-xl border border-passive shadow-inset-dark">
-                  <h4 className="text-[14px] font-semibold mb-2">Local tips</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-[14px] text-[#5f5f5d]">
-                    {spot.tips.map((tip, idx) => (
-                      <li key={idx} className="pl-1">{tip}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Nearest station — live data */}
-              <NearestStation
-                latitude={spot.location.latitude}
-                longitude={spot.location.longitude}
-              />
-
-              {/* Flag / report */}
-              <Popover.Root
-                open={flagOpen}
-                onOpenChange={(o) => {
-                  setFlagOpen(o);
-                  if (!o) { setFlagDone(false); setFlagReason(""); }
-                }}
+              {/* Save Button (Smaller/Minimal) */}
+              <button
+                onClick={handleSaveClick}
+                className={cn(
+                  "flex items-center justify-center gap-2 text-[12px] font-bold py-2 rounded-lg transition-all",
+                  isSaved ? "text-[#2d5a4c]" : "text-[#5f5f5d] hover:text-[#1c1c1c]"
+                )}
               >
-                <Popover.Anchor asChild>
-                  <button
-                    onClick={() => {
-                      if (!user) {
-                        const city = spot.city || "london";
-                        const nbhSlug = slugify(spot.neighbourhood);
-                        const spotPath = `/${city}/${nbhSlug}/${spot.slug}`;
-                        router.push(`/login?redirect=${encodeURIComponent(spotPath)}`);
-                        return;
-                      }
-                      setFlagOpen(true);
-                    }}
-                    className="flex items-center gap-1.5 text-[13px] text-[#5f5f5d] hover:text-red-500 transition-colors mx-auto"
-                  >
-                    <Flag className="w-3.5 h-3.5" />
-                    Report this spot
-                  </button>
-                </Popover.Anchor>
-                <Popover.Portal>
-                  <Popover.Content
-                    side="top"
-                    sideOffset={8}
-                    className="z-60 w-72 bg-white rounded-xl border border-passive shadow-lg p-4 flex flex-col gap-3"
-                  >
-                    {flagDone ? (
-                      <p className="text-sm text-center text-[#1c1c1c] font-semibold py-2">
-                        Thanks — our team will review this spot.
-                      </p>
-                    ) : (
-                      <>
-                        <p className="text-[13px] font-semibold text-[#1c1c1c]">Report an issue</p>
-                        <textarea
-                          rows={3}
-                          className="w-full px-3 py-2 text-sm border border-passive rounded-lg bg-[#fcfbf8] focus:outline-none focus:ring-2 focus:ring-[#1c1c1c]/20 resize-none"
-                          placeholder="What's wrong? (e.g. closed, incorrect info…)"
-                          value={flagReason}
-                          onChange={(e) => setFlagReason(e.target.value)}
-                        />
-                        <button
-                          disabled={!flagReason.trim() || flagBusy}
-                          onClick={submitFlag}
-                          className="w-full py-2 bg-[#1c1c1c] text-[#fcfbf8] text-[13px] font-semibold rounded-full hover:bg-[#3a3a3a] disabled:opacity-40 transition-colors"
-                        >
-                          {flagBusy ? "Sending…" : "Submit report"}
-                        </button>
-                      </>
-                    )}
-                    <Popover.Arrow className="fill-white stroke-passive" />
-                  </Popover.Content>
-                </Popover.Portal>
-              </Popover.Root>
-
-              {/* View full page */}
-              <div className="pb-8 text-center">
-                <button
-                  onClick={viewFullPage}
-                  className="text-[14px] font-medium text-[#1c1c1c] underline underline-offset-4 hover:text-[#5f5f5d] transition-colors"
-                >
-                  View full page
-                </button>
-              </div>
-
+                {isSaved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                {isSaved ? "Saved to your list" : "Save for later"}
+              </button>
             </div>
           )}
         </Dialog.Content>

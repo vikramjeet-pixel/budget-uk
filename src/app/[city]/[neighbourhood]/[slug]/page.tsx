@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { adminDb } from "@/lib/firebase/admin";
 import Link from "next/link";
@@ -28,6 +27,20 @@ interface PageProps {
   }>;
 }
 
+// Serialize Firestore objects (GeoPoint, Timestamp) into plain objects for Client Components
+function serializeSpot(docId: string, data: any): Spot {
+  return {
+    ...data,
+    id: docId,
+    location: {
+      latitude: data.location?._latitude ?? data.location?.latitude,
+      longitude: data.location?._longitude ?? data.location?.longitude,
+    },
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+  } as Spot;
+}
+
 // Fetch spot by slug server-side
 async function getSpotBySlug(slug: string): Promise<Spot | null> {
   const snapshot = await adminDb
@@ -40,13 +53,13 @@ async function getSpotBySlug(slug: string): Promise<Spot | null> {
   if (snapshot.empty) return null;
 
   const doc = snapshot.docs[0];
-  return { id: doc.id, ...doc.data() } as Spot;
+  return serializeSpot(doc.id, doc.data());
 }
 
 // Fetch nearby spots server-side
 async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
   const center: [number, number] = [spot.location.latitude, spot.location.longitude];
-  const radiusInM = 2000; // Expanded to 2km for better sidebar variety
+  const radiusInM = 2000; 
   const bounds = geofire.geohashQueryBounds(center, radiusInM);
   const promises = [];
 
@@ -60,28 +73,36 @@ async function getNearbySpots(spot: Spot, limit = 4): Promise<Spot[]> {
   }
 
   const snapshots = await Promise.all(promises);
-  const matchingDocs: (Spot & { distance: number })[] = [];
+  const matchingDocs: Spot[] = [];
 
   for (const snap of snapshots) {
     for (const doc of snap.docs) {
       const data = doc.data();
       if (doc.id === spot.id || data.status !== "live") continue;
 
+      const spotLocation = {
+        latitude: data.location?._latitude ?? data.location?.latitude,
+        longitude: data.location?._longitude ?? data.location?.longitude,
+      };
+
       const distanceInKm = geofire.distanceBetween(
-        [data.location.latitude, data.location.longitude],
+        [spotLocation.latitude, spotLocation.longitude],
         center
       );
       const distanceInM = distanceInKm * 1000;
 
       if (distanceInM <= radiusInM) {
-        matchingDocs.push({ id: doc.id, distance: distanceInM, ...data } as Spot & { distance: number });
+        matchingDocs.push({ 
+          ...serializeSpot(doc.id, data),
+          distance: distanceInM 
+        } as any);
       }
     }
   }
 
   // De-duplicate and sort
   const unique = Array.from(new Map(matchingDocs.map((item) => [item.id, item])).values());
-  return unique.sort((a, b) => a.distance - b.distance).slice(0, limit) as Spot[];
+  return unique.sort((a: any, b: any) => a.distance - b.distance).slice(0, limit);
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://budgetuk.io";
@@ -130,9 +151,6 @@ function buildJsonLd(spot: Spot): Record<string, any> {
     priceRange: priceTierToRange(spot.priceTier),
   };
 
-  if (spot.photoUrl) {
-    ld.image = spot.photoUrl;
-  }
 
   // Aggregate rating from Google Places enrichment
   if (spot.placeData?.rating && spot.placeData?.userRatingsTotal) {
@@ -209,13 +227,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url,
       type: "article",
-      images: spot.photoUrl ? [{ url: spot.photoUrl, alt: spot.name }] : [],
+      images: [],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: spot.photoUrl ? [spot.photoUrl] : [],
+      images: [],
     },
   };
 }
@@ -260,7 +278,7 @@ export default async function SpotPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 flex flex-col lg:flex-row gap-12">
           {/* Main Content (2/3) */}
           <div className="flex-grow lg:w-2/3 flex flex-col gap-8">
             
@@ -280,23 +298,6 @@ export default async function SpotPage({ params }: PageProps) {
               <span className="text-[#1c1c1c] truncate">{spot.name}</span>
             </nav>
             
-            {/* Hero Image */}
-            <div className="w-full aspect-video rounded-[12px] border border-passive overflow-hidden bg-passive relative shadow-sm">
-              {spot.photoUrl ? (
-                <Image 
-                  src={spot.photoUrl} 
-                  alt={spot.name} 
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
-                  className="object-cover" 
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-[#5f5f5d]">
-                  No photo available
-                </div>
-              )}
-            </div>
 
             {/* Title & Badges */}
             <div className="flex flex-col gap-4">
@@ -409,7 +410,7 @@ export default async function SpotPage({ params }: PageProps) {
 
                 <div className="pt-2 text-center">
                   <span className="t-caption text-[#5f5f5d]">
-                    Added {new Date(spot.createdAt.toDate()).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+                    Added {new Date(spot.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                   </span>
                 </div>
               </Card>
@@ -440,7 +441,6 @@ export default async function SpotPage({ params }: PageProps) {
               )}
             </div>
           </aside>
-        </div>
       </main>
     </div>
   );

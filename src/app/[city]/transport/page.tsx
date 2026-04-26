@@ -6,6 +6,7 @@ import { TRANSPORT_CONTENT } from "@/data/transport-content";
 import type { TransportMode } from "@/data/transport";
 import { getCityBySlug } from "@/data/cities";
 import { FareCalculator } from "./FareCalculator";
+import { ComingSoon } from "@/components/features/ComingSoon";
 
 type Props = {
   params: Promise<{ city: string }>;
@@ -149,19 +150,7 @@ export default async function TransportPage({ params }: Props) {
   if (!city) notFound();
 
   if (!content) {
-    return (
-      <div className="min-h-screen bg-[#f7f4ed] flex items-center justify-center">
-        <div className="text-center max-w-md px-6">
-          <h1 className="t-h2 text-[#1c1c1c] mb-4">Transport for {city.name} — Coming Soon</h1>
-          <p className="t-body text-[#5f5f5d] mb-8">
-            We&apos;re currently curating the best budget transport tips for {city.name}. Check back shortly!
-          </p>
-          <a href={`/${city.slug}`} className="text-[#1c1c1c] font-bold underline">
-            Back to {city.name} Map
-          </a>
-        </div>
-      </div>
-    );
+    return <ComingSoon cityName={city.name} citySlug={city.slug} />;
   }
 
   return (

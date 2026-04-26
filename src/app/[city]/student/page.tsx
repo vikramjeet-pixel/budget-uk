@@ -149,7 +149,7 @@ export default async function StudentPage({ params }: { params: Promise<{ city: 
   const cityName = CITIES.find(c => c.slug === city.toLowerCase())?.name || city;
 
   if (!content) {
-    return <ComingSoon cityName={cityName} />;
+    return <ComingSoon cityName={cityName} citySlug={city} />;
   }
 
   return (

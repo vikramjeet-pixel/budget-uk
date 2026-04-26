@@ -111,3 +111,25 @@ export function trackSignup(params: { method: string; city?: string }) {
 export function trackAffiliateClick(params: { destination: string; city?: string }) {
   gtag("event", "affiliate_click", { ...params, city: params.city || getCityFromUrl() });
 }
+
+// ─── Map specific events ───────────────────────────────────────────────────
+
+export function trackMapCityClick(cityName: string) {
+  gtag("event", "map_city_click", { city_name: cityName });
+}
+
+export function trackMapSpotClick(spotName: string, cityName: string) {
+  gtag("event", "map_spot_click", { spot_name: spotName, city_name: cityName });
+}
+
+export function trackMapZoomLevel(zoom: number) {
+  gtag("event", "map_zoom_level", { zoom_level: Math.round(zoom) });
+}
+
+export function trackMapFilterApplied(filterType: string) {
+  gtag("event", "map_filter_applied", { filter_type: filterType });
+}
+
+export function trackMapHeatmapToggle(enabled: boolean) {
+  gtag("event", "map_heatmap_toggle", { heatmap_state: enabled ? "on" : "off" });
+}

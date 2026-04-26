@@ -58,8 +58,13 @@ export function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-6">
-          <Link href="/" className="font-sans font-semibold text-[20px] text-[#1c1c1c] shrink-0">
-            BudgetUK
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-[#2d5a4c] rounded-full flex items-center justify-center text-white font-bold text-[15px] shadow-sm transition-transform group-hover:scale-105">
+              UK
+            </div>
+            <span className="font-sans font-bold text-[19px] text-[#1c1c1c] tracking-tight hidden xs:inline">
+              BudgetUK
+            </span>
           </Link>
 
           <div className="hidden md:block">
@@ -85,14 +90,14 @@ export function Header() {
           </nav>
         </div>
 
-        {!isOnSpots && (
-          <div className="hidden md:flex flex-1 max-w-65 mx-6 relative">
+        {!isOnSpots && pathname !== "/" && (
+          <div className="hidden md:flex flex-1 max-w-[280px] mx-6 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5f5f5d]" />
             <input
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              placeholder={`Search ${currentCity}…`}
+              placeholder="Search spots..."
               className="w-full bg-[#ede9e1] border border-passive rounded-full pl-8 pr-3 py-1.5 text-[13px] outline-none focus:border-[#1c1c1c] focus:bg-[#f7f4ed] transition-all text-[#1c1c1c] placeholder:text-[#5f5f5d]"
             />
           </div>

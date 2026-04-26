@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useMemo } from "react";
-import Map, { MapRef, NavigationControl, Marker } from "react-map-gl/maplibre";
+import Map, { MapRef, NavigationControl, Marker, Popup } from "react-map-gl/maplibre";
 import useSupercluster from "use-supercluster";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { cn } from "@/lib/utils";
@@ -91,6 +91,8 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
       });
     }
   }, [userLocation]);
+
+  const activeSpot = useMemo(() => spots.find(s => s.id === activeSpotId), [spots, activeSpotId]);
 
   return (
     <div 
@@ -205,10 +207,37 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
             </Marker>
           );
         })}
+
+        {/* Map Popover (Screenshot style) */}
+        {activeSpot && (
+          <Popup
+            longitude={activeSpot.location.longitude}
+            latitude={activeSpot.location.latitude}
+            anchor="bottom"
+            onClose={() => onMarkerClick?.(null)}
+            closeButton={false}
+            offset={20}
+            className="z-[60]"
+          >
+            <div className="bg-white p-4 rounded-[20px] shadow-2xl border border-white min-w-[200px] animate-in zoom-in-95 duration-200">
+              <h3 className="text-[16px] font-bold text-[#1c1c1c] leading-tight mb-1">
+                {activeSpot.name}
+              </h3>
+              <div className="flex items-center gap-1.5 text-[12px] text-[#5f5f5d] font-medium mb-1">
+                <span>{activeSpot.neighbourhood}</span>
+                <span>·</span>
+                <span>{activeSpot.priceTier === "free" ? "Free" : activeSpot.priceTier}</span>
+              </div>
+              <div className="text-[12px] text-[#1c1c1c]/60 font-medium">
+                {activeSpot.category.charAt(0).toUpperCase() + activeSpot.category.slice(1)}
+              </div>
+            </div>
+          </Popup>
+        )}
       </Map>
 
       {/* Map Legend */}
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 z-10 flex-col gap-1.5 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[170px] animate-in fade-in slide-in-from-left-4 duration-500 overflow-y-auto max-h-[90vh]">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-4 z-10 flex-col gap-1.5 p-4 bg-[#fcfbf8]/90 backdrop-blur-sm rounded-2xl border border-white shadow-xl max-w-[170px] animate-in fade-in slide-in-from-right-4 duration-500 overflow-y-auto max-h-[90vh]">
         <h4 className="text-[11px] font-bold text-[#1c1c1c] uppercase tracking-wider mb-1 opacity-50 px-1">Legend</h4>
         {[
           { label: "Food", color: "bg-[#ef4444]" },

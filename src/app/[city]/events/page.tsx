@@ -122,7 +122,7 @@ export default async function EventsPage({ params }: { params: Promise<{ city: s
   const cityName = CITIES.find(c => c.slug === city.toLowerCase())?.name || city;
 
   if (!content) {
-    return <ComingSoon cityName={cityName} />;
+    return <ComingSoon cityName={cityName} citySlug={city} />;
   }
 
   return (

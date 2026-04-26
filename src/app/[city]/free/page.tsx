@@ -38,7 +38,7 @@ export default async function FreePage({ params }: { params: Promise<{ city: str
   }
 
   if (spots.length === 0) {
-    return <ComingSoon cityName={cityName} />;
+    return <ComingSoon cityName={cityName} citySlug={citySlug} />;
   }
 
   return <FreePageClient spots={spots} citySlug={citySlug} />;

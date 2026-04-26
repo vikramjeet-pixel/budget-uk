@@ -4,7 +4,7 @@ import * as React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Trash2, Camera, Loader2 } from "lucide-react";
+import { Plus, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -228,15 +228,6 @@ export function SpotForm({ initialData, onSubmit, isLoading, buttonText = "Publi
           <Plus className="w-4 h-4 mr-2" />
           Add another tip
         </Button>
-      </div>
-
-      {/* Photo Upload Placeholder */}
-      <div className="flex flex-col gap-2">
-        <label className="text-[14px] font-bold text-[#1c1c1c]">Photo</label>
-        <div className="w-full h-40 border-2 border-dashed border-[var(--border-interactive)] rounded-[12px] flex flex-col items-center justify-center gap-2 bg-[#fcfbf8] opacity-60 cursor-not-allowed">
-          <Camera className="w-8 h-8 text-[#5f5f5d]" />
-          <span className="text-[13px] text-[#5f5f5d]">Photo upload coming soon</span>
-        </div>
       </div>
 
       <hr className="my-2 border-[var(--border-passive)]" />

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { highlightText } from "@/lib/highlight";
@@ -38,65 +37,51 @@ export function SpotCard({
         className={`h-full cursor-pointer transition-shadow hover:shadow-focus ${isActive ? "border-[#1c1c1c]" : ""}`}
         onClick={onClick}
       >
-        <div className="flex gap-4 p-4 items-start h-full">
-          <div className="h-24 w-24 shrink-0 bg-passive rounded-sm overflow-hidden relative">
-            {spot.photoUrl ? (
-              <Image
-                src={spot.photoUrl}
-                alt={spot.name}
-                fill
-                sizes="96px"
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-(--hover-tint) flex items-center justify-center text-[10px] text-[#5f5f5d]">
-                No Image
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col justify-start grow gap-2 h-full">
-            <div>
-              <h3 className="t-h3 text-[#1c1c1c] leading-tight mb-0.5">
+        <div className="flex flex-col gap-3 p-5 h-full">
+          <div className="flex flex-col justify-start grow gap-2.5">
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="t-h3 text-[#1c1c1c] font-bold leading-tight">
                 {highlightText(spot.name, query)}
               </h3>
-              {spot.approxPriceGbp !== undefined && (
-                <div className="text-[12px] text-[#5f5f5d] font-medium mb-1.5 opacity-80">
-                  {spot.priceTier === "free" ? "Always Free" : `~£${spot.approxPriceGbp} ${spot.category === "food" ? "per meal" : spot.category === "coffee" ? "per cup" : ""}`}
-                </div>
-              )}
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-[14px] text-[#5f5f5d] font-medium">
-                  {spot.neighbourhood} {spot.postcodeDistrict ? `· ${spot.postcodeDistrict}` : ""}
-                </span>
-                <Badge variant={spot.priceTier === "free" ? "free" : "tier"}>
-                  {spot.priceTier === "free" ? "Free" : spot.priceTier}
-                </Badge>
-                {showDistance && spot.distance !== undefined && (
-                  <span className="text-[12px] text-[#565] font-medium ml-1">
-                    · {(spot.distance / 1000).toFixed(1)}km
-                  </span>
-                )}
-              </div>
+              <Badge variant={spot.priceTier === "free" ? "free" : "tier"}>
+                {spot.priceTier === "free" ? "Free" : spot.priceTier}
+              </Badge>
+            </div>
 
-              {(spot.website || spot.placeData?.website) && (
-                <a 
-                  href={spot.website || spot.placeData?.website || "#"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-1.5 text-[13px] text-[#1c1c1c] font-medium hover:text-[#565] underline-offset-4 hover:underline mb-2 block w-fit bg-[#f0ede4] px-2 py-0.5 rounded-sm border border-[#e5e0d5] transition-colors"
-                >
-                  <span>Visit Website</span>
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+            {spot.approxPriceGbp !== undefined && (
+              <div className="text-[12px] text-[#5f5f5d] font-semibold opacity-80">
+                {spot.priceTier === "free" ? "Always Free" : `~£${spot.approxPriceGbp} ${spot.category === "food" ? "per meal" : spot.category === "coffee" ? "per cup" : ""}`}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 flex-wrap text-[13px] text-[#5f5f5d] font-medium">
+              <span>{spot.neighbourhood} {spot.postcodeDistrict ? `· ${spot.postcodeDistrict}` : ""}</span>
+              {showDistance && spot.distance !== undefined && (
+                <span className="text-[#565] ml-1">
+                  · {(spot.distance / 1000).toFixed(1)}km
+                </span>
               )}
             </div>
 
-            <p className="text-[#5f5f5d] text-[14px] line-clamp-2 mt-auto">
+            <p className="text-[#5f5f5d] text-[14px] leading-relaxed line-clamp-3">
               {highlightText(spot.description, query)}
             </p>
           </div>
+
+          {(spot.website || spot.placeData?.website) && (
+            <div className="mt-auto pt-2">
+              <a 
+                href={spot.website || spot.placeData?.website || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 text-[12px] text-[#1c1c1c] font-bold hover:text-[#565] underline-offset-4 hover:underline bg-[#f0ede4] px-3 py-1 rounded-full border border-[#e5e0d5] transition-colors"
+              >
+                <span>Website</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
         </div>
       </Card>
     </div>
