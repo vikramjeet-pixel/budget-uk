@@ -1,4 +1,4 @@
-import type { Spot } from "@/types";
+import type { Spot, SerializedSpot } from "@/types";
 
 /**
  * Generates a Google Maps directions URL for a given spot.
@@ -6,7 +6,7 @@ import type { Spot } from "@/types";
  * 1. If googlePlaceId is available, uses the place_id specific query.
  * 2. Otherwise, constructs a full address search query.
  */
-export function getDirectionsUrl(spot: Spot): string {
+export function getDirectionsUrl(spot: Spot | SerializedSpot): string {
   if (spot.googlePlaceId) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name)}&query_place_id=${spot.googlePlaceId}`;
   }
