@@ -73,7 +73,7 @@ async function getNearbySpots(spot: SerializedSpot, limit = 4): Promise<Serializ
   }
 
   const snapshots = await Promise.all(promises);
-  const matchingDocs: Spot[] = [];
+  const matchingDocs: (SerializedSpot & { distance: number })[] = [];
 
   for (const snap of snapshots) {
     for (const doc of snap.docs) {
@@ -95,14 +95,14 @@ async function getNearbySpots(spot: SerializedSpot, limit = 4): Promise<Serializ
         matchingDocs.push({ 
           ...serializeSpot(doc.id, data),
           distance: distanceInM 
-        } as any);
+        });
       }
     }
   }
 
   // De-duplicate and sort
   const unique = Array.from(new Map(matchingDocs.map((item) => [item.id, item])).values());
-  return unique.sort((a: any, b: any) => a.distance - b.distance).slice(0, limit);
+  return unique.sort((a, b) => a.distance - b.distance).slice(0, limit);
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://budgetuk.io";
