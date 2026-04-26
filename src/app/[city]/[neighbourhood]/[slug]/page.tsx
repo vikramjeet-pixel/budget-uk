@@ -109,7 +109,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://budgetuk.io";
 
 const FOOD_CATEGORIES = new Set(["food", "coffee", "bars", "grocery"]);
 
-function buildSpotUrl(spot: Spot): string {
+function buildSpotUrl(spot: SerializedSpot): string {
   const neighbourhood = encodeURIComponent(spot.neighbourhood.toLowerCase().replace(/\s+/g, "-"));
   return `${BASE_URL}/${spot.city || "london"}/${neighbourhood}/${spot.slug}`;
 }
@@ -126,7 +126,7 @@ function priceTierToRange(tier: string): string {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-function buildJsonLd(spot: Spot): Record<string, any> {
+function buildJsonLd(spot: SerializedSpot): Record<string, any> {
   const isFood = FOOD_CATEGORIES.has(spot.category);
   const url = buildSpotUrl(spot);
 
