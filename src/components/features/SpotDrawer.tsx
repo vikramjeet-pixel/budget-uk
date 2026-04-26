@@ -36,6 +36,7 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
         spotId: spot.id,
         category: spot.category,
         neighbourhood: spot.neighbourhood,
+        city: spot.city || "london",
       });
     }
   }, [spot]);
@@ -44,9 +45,13 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
     if (!open) onClose();
   };
 
+  const slugify = (text: string) => encodeURIComponent(text.toLowerCase().replace(/\s+/g, "-"));
+
   const handleSaveClick = async () => {
     if (!user) {
-      const spotPath = `/london/${encodeURIComponent(spot!.neighbourhood.toLowerCase())}/${spot!.slug}`;
+      const city = spot?.city || "london";
+      const nbhSlug = slugify(spot!.neighbourhood);
+      const spotPath = `/${city}/${nbhSlug}/${spot!.slug}`;
       router.push(`/login?redirect=${encodeURIComponent(spotPath)}`);
       return;
     }
@@ -56,7 +61,9 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
 
   const viewFullPage = () => {
     if (!spot) return;
-    router.push(`/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`);
+    const city = spot.city || "london";
+    const nbhSlug = slugify(spot.neighbourhood);
+    router.push(`/${city}/${nbhSlug}/${spot.slug}`);
   };
 
   const submitFlag = async () => {
@@ -227,7 +234,9 @@ export function SpotDrawer({ spot, onClose }: SpotDrawerProps) {
                   <button
                     onClick={() => {
                       if (!user) {
-                        const spotPath = `/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`;
+                        const city = spot.city || "london";
+                        const nbhSlug = slugify(spot.neighbourhood);
+                        const spotPath = `/${city}/${nbhSlug}/${spot.slug}`;
                         router.push(`/login?redirect=${encodeURIComponent(spotPath)}`);
                         return;
                       }

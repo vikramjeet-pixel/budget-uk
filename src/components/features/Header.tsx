@@ -12,15 +12,9 @@ import { signOutUser } from "@/lib/firebase/auth";
 import { useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
-const navLinks = [
-  { name: "Map", href: "/" },
-  { name: "Spots", href: "/spots" },
-  { name: "Free", href: "/free" },
-  { name: "Transport", href: "/transport" },
-  { name: "Events", href: "/events" },
-  { name: "Community", href: "/community" },
-  { name: "About", href: "/about" },
-];
+import { CitySelector } from "./CitySelector";
+
+const STATIC_PAGES = ["about", "privacy", "terms", "login", "signup", "account"];
 
 export function Header() {
   const scrolled = useScroll(10);
@@ -30,12 +24,29 @@ export function Header() {
   const pathname = usePathname();
   const [searchInput, setSearchInput] = React.useState("");
   const debouncedSearch = useDebounce(searchInput, 250);
-  const isOnSpots = pathname === "/spots";
+
+  // Extract city slug from pathname
+  const pathParts = pathname.split("/").filter(Boolean);
+  const citySlug = pathParts[0];
+  const isCityPage = citySlug && !STATIC_PAGES.includes(citySlug);
+  const currentCity = isCityPage ? citySlug : "london";
+
+  const isOnSpots = pathname.includes("/spots");
+
+  const navLinks = [
+    { name: "Map", href: `/${currentCity}` },
+    { name: "Spots", href: `/${currentCity}/spots` },
+    { name: "Free", href: `/${currentCity}/free` },
+    { name: "Transport", href: `/${currentCity}/transport` },
+    { name: "Events", href: `/${currentCity}/events` },
+    { name: "Community", href: `/${currentCity}/community` },
+    { name: "About", href: "/about" },
+  ];
 
   React.useEffect(() => {
     if (!debouncedSearch.trim()) return;
-    router.push(`/spots?q=${encodeURIComponent(debouncedSearch)}`);
-  }, [debouncedSearch, router]);
+    router.push(`/${currentCity}/spots?q=${encodeURIComponent(debouncedSearch)}`);
+  }, [debouncedSearch, router, currentCity]);
 
   return (
     <header
@@ -46,18 +57,25 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center space-x-8">
-          <Link href="/" className="font-sans font-semibold text-[20px] text-[#1c1c1c]">
+        <div className="flex items-center space-x-6">
+          <Link href="/" className="font-sans font-semibold text-[20px] text-[#1c1c1c] shrink-0">
             BudgetUK
           </Link>
 
-          <nav className="hidden md:block">
+          <div className="hidden md:block">
+            <CitySelector />
+          </div>
+
+          <nav className="hidden lg:block">
             <ul className="flex items-center space-x-6">
               {navLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline"
+                    className={cn(
+                      "text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline",
+                      pathname === link.href && "font-bold underline"
+                    )}
                   >
                     {link.name}
                   </Link>
@@ -74,7 +92,7 @@ export function Header() {
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              placeholder="Search spots…"
+              placeholder={`Search ${currentCity}…`}
               className="w-full bg-[#ede9e1] border border-passive rounded-full pl-8 pr-3 py-1.5 text-[13px] outline-none focus:border-[#1c1c1c] focus:bg-[#f7f4ed] transition-all text-[#1c1c1c] placeholder:text-[#5f5f5d]"
             />
           </div>
@@ -121,7 +139,7 @@ export function Header() {
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>
               </DropdownMenu.Root>
-              <Link href="/community/add">
+              <Link href={`/${currentCity}/community/add`}>
                 <Button variant="primary">Add a Spot</Button>
               </Link>
             </>
@@ -130,14 +148,15 @@ export function Header() {
               <Link href="/login" passHref>
                 <Button variant="ghost">Log In</Button>
               </Link>
-              <Link href="/community/add">
+              <Link href={`/${currentCity}/community/add`}>
                 <Button variant="primary">Add a Spot</Button>
               </Link>
             </>
           )}
         </div>
 
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-3">
+          <CitySelector />
           <IconButton
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
@@ -156,7 +175,10 @@ export function Header() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline"
+                    className={cn(
+                      "block text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline",
+                      pathname === link.href && "font-bold underline"
+                    )}
                   >
                     {link.name}
                   </Link>
@@ -169,7 +191,7 @@ export function Header() {
                       <Button variant="ghost" className="w-full justify-center">Account</Button>
                     </Link>
                     <Button variant="ghost" className="w-full justify-center" onClick={() => signOutUser()}>Sign Out</Button>
-                    <Link href="/community/add" className="w-full">
+                    <Link href={`/${currentCity}/community/add`} className="w-full">
                       <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
                     </Link>
                   </>
@@ -178,7 +200,7 @@ export function Header() {
                     <Link href="/login" className="w-full">
                       <Button variant="ghost" className="w-full justify-center">Log In</Button>
                     </Link>
-                    <Link href="/community/add" className="w-full">
+                    <Link href={`/${currentCity}/community/add`} className="w-full">
                       <Button variant="primary" className="w-full justify-center">Add a Spot</Button>
                     </Link>
                   </>
@@ -191,3 +213,4 @@ export function Header() {
     </header>
   );
 }
+

@@ -7,7 +7,7 @@ import { useAuthContext } from "@/components/providers/AuthProvider";
 import { db } from "@/lib/firebase/client";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { uploadAvatar } from "@/lib/firebase/storage";
-import { updateEmail, updatePassword, updateProfile, deleteUser } from "firebase/auth";
+import { updateEmail, updatePassword, updateProfile, deleteUser, type User } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { FavouritesTab } from "@/components/features/FavouritesTab";
@@ -26,8 +26,8 @@ function AccountContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab) setActiveTab(tab);
-  }, [searchParams]);
+    if (tab && tab !== activeTab) setActiveTab(tab);
+  }, [searchParams, activeTab]);
 
   if (loading || !user) {
     return <div className="flex h-[50vh] items-center justify-center text-[#5f5f5d]">Loading...</div>;
@@ -60,7 +60,7 @@ function AccountContent() {
 
         <Tabs.Content value="submissions" className="focus:outline-none">
           <div className="py-8 text-center text-[#5f5f5d]">
-            <p>You haven't submitted any spots yet.</p>
+            <p>You haven&apos;t submitted any spots yet.</p>
           </div>
         </Tabs.Content>
 
@@ -73,7 +73,7 @@ function AccountContent() {
   );
 }
 
-function ProfileTab({ user }: { user: any }) {
+function ProfileTab({ user }: { user: User }) {
   const [displayName, setDisplayName] = useState(user.displayName || "");
   const [homeBorough, setHomeBorough] = useState("");
   const [saving, setSaving] = useState(false);
@@ -197,7 +197,7 @@ function ProfileTab({ user }: { user: any }) {
   );
 }
 
-function SettingsTab({ user }: { user: any }) {
+function SettingsTab({ user }: { user: User }) {
   const router = useRouter();
   const [email, setEmail] = useState(user.email || "");
   const [password, setPassword] = useState("");

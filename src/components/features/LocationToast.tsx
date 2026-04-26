@@ -41,7 +41,7 @@ export function LocationToast({ onLocationFound, onClose }: LocationToastProps) 
         <button onClick={onClose} className="text-[#5f5f5d] hover:text-[#1c1c1c] text-xl font-medium leading-none">&times;</button>
       </div>
       <p className="text-[14px] text-[#5f5f5d] mb-4">
-        We explicitly couldn't map your precise location automatically over browser parameters. Please enter your postcode instead locally.
+        We explicitly couldn&apos;t map your precise location automatically over browser parameters. Please enter your postcode instead locally.
       </p>
       
       <form onSubmit={handleSubmit} className="flex gap-2">

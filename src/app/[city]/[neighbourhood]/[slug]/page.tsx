@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { adminDb } from "@/lib/firebase/admin";
+import Link from "next/link";
 import { Spot } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { NearestStation } from "@/components/features/NearestStation";
 import { SaveSpotButton } from "@/components/features/SaveSpotButton";
 import { getDirectionsUrl } from "@/lib/maps/getDirectionsUrl";
 import * as geofire from "geofire-common";
+import { CITIES } from "@/data/cities";
 
 // Pre-build top 50 spots; all other slugs render on-demand and are cached for 1 hour.
 export const revalidate = 3600;
@@ -259,10 +261,24 @@ export default async function SpotPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          
           {/* Main Content (2/3) */}
           <div className="flex-grow lg:w-2/3 flex flex-col gap-8">
+            
+            {/* Breadcrumbs */}
+            <nav className="flex items-center gap-2 text-[13px] text-[#5f5f5d] font-medium overflow-x-auto whitespace-nowrap pb-1">
+              <Link href="/" className="hover:text-[#1c1c1c] transition-colors">Home</Link>
+              <span className="text-passive">/</span>
+              <Link href={`/${spot.city || "london"}/spots`} className="hover:text-[#1c1c1c] transition-colors">{CITIES.find(c => c.slug === (spot.city || "london"))?.name || "London"}</Link>
+              <span className="text-passive">/</span>
+              <Link 
+                href={`/${spot.city || "london"}/spots?neighbourhood=${encodeURIComponent(spot.neighbourhood)}`} 
+                className="hover:text-[#1c1c1c] transition-colors"
+              >
+                {spot.neighbourhood}
+              </Link>
+              <span className="text-passive">/</span>
+              <span className="text-[#1c1c1c] truncate">{spot.name}</span>
+            </nav>
             
             {/* Hero Image */}
             <div className="w-full aspect-video rounded-[12px] border border-passive overflow-hidden bg-passive relative shadow-sm">

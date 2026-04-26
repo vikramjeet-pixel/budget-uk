@@ -50,9 +50,9 @@ export function useVote() {
       });
 
       return true;
-    } catch (error: any) {
-      console.error("Voting error:", error);
-      throw error;
+    } catch (err) {
+      console.error("Voting error:", err);
+      throw err;
     } finally {
       // Note: We don't remove from votingIds immediately to prevent rapid double-voting 
       // until the next page refresh or local state update, or we can remove it.

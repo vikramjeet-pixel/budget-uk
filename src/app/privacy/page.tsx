@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold font-serif mb-4">2. Usage of Location Data</h2>
             <p>
-              We request access to your device's location to show nearby budget spots. This data is processed locally on your device and is not stored on our servers unless you explicitly submit a new spot with location details.
+              We request access to your device&apos;s location to show nearby budget spots. This data is processed locally on your device and is not stored on our servers unless you explicitly submit a new spot with location details.
             </p>
           </section>
 

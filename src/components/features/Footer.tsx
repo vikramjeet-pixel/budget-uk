@@ -1,8 +1,18 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { getCityBySlug } from "@/data/cities";
 
 export function Footer() {
+  const pathname = usePathname();
+  const pathParts = pathname.split("/").filter(Boolean);
+  const citySlug = pathParts[0];
+  const city = getCityBySlug(citySlug);
+  const cityName = city?.name || "London";
+
   return (
     <footer className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 mt-auto">
       <div 
@@ -34,7 +44,7 @@ export function Footer() {
                 <Link href="/london" className="text-[#5f5f5d] text-[14px] hover:text-[#1c1c1c] hover:underline underline-offset-4 transition-colors">London</Link>
               </li>
               <li>
-                <span className="text-[#5f5f5d]/50 text-[14px] cursor-not-allowed">Manchester (Coming soon)</span>
+                <Link href="/manchester" className="text-[#5f5f5d] text-[14px] hover:text-[#1c1c1c] hover:underline underline-offset-4 transition-colors">Manchester</Link>
               </li>
             </ul>
           </div>
@@ -66,7 +76,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col items-start md:flex-row md:items-center justify-between border-t border-[var(--border-passive)] pt-8">
           <span className="text-[20px] font-semibold text-[#1c1c1c]">BudgetUK</span>
-          <span className="mt-4 md:mt-0 text-[#5f5f5d] text-[14px]">Made in London</span>
+          <span className="mt-4 md:mt-0 text-[#5f5f5d] text-[14px]">Made in {cityName}</span>
         </div>
       </div>
     </footer>

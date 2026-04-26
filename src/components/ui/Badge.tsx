@@ -11,6 +11,8 @@ const badgeVariants = cva(
         category: "bg-[var(--hover-tint)] text-[#1c1c1c]",
         tier: "bg-[var(--hover-tint)] text-[#1c1c1c]",
         free: "bg-[#fcfbf8] text-[#1c1c1c] border border-[var(--border-passive)]",
+        outline: "bg-transparent border border-[var(--border-passive)] text-[#5f5f5d]",
+        primary: "bg-[#1c1c1c] text-white",
       },
     },
     defaultVariants: {

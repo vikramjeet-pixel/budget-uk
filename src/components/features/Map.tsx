@@ -12,6 +12,7 @@ interface MapViewProps {
   activeSpotId?: string;
   onMarkerClick?: (spot: any) => void;
   userLocation?: [number, number] | null;
+  initialCenter?: { lat: number; lng: number };
 }
 
 const LONDON_BOUNDS: [[number, number], [number, number]] = [
@@ -48,7 +49,7 @@ const getCategoryStyle = (category: string) => {
   return styles[category] || "bg-[#1c1c1c]";
 };
 
-export function MapView({ className, spots = [], activeSpotId, userLocation, onMarkerClick }: MapViewProps) {
+export function MapView({ className, spots = [], activeSpotId, userLocation, onMarkerClick, initialCenter }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   
   // Track viewport boundary dynamically passing native coordinate limitations heavily into supercluster wrappers
@@ -99,8 +100,8 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
       <Map
         ref={mapRef}
         initialViewState={{
-          longitude: -0.1276,
-          latitude: 51.5074,
+          longitude: initialCenter?.lng ?? -0.1276,
+          latitude: initialCenter?.lat ?? 51.5074,
           zoom: 12,
           pitch: 0,
           bearing: 0,
@@ -111,7 +112,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
           setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
         }}
         mapStyle="https://tiles.openfreemap.org/styles/liberty"
-        maxBounds={LONDON_BOUNDS}
+        maxBounds={initialCenter ? undefined : LONDON_BOUNDS}
         attributionControl={false} 
         minPitch={0}
         maxPitch={0}

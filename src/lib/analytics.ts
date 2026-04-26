@@ -59,41 +59,55 @@ export function denyGA() {
 
 // ─── Custom events ──────────────────────────────────────────────────────────
 
+function getCityFromUrl(): string {
+  if (typeof window === "undefined") return "london";
+  const path = window.location.pathname;
+  const parts = path.split("/").filter(Boolean);
+  // Known static pages at root
+  const STATIC = ["about", "privacy", "terms", "login", "signup", "account", "admin", "team", "contact", "blog", "guides", "u"];
+  if (parts.length > 0 && !STATIC.includes(parts[0])) {
+    return parts[0];
+  }
+  return "london";
+}
+
 export function trackSpotViewed(params: {
   spotId: string;
   category: string;
   neighbourhood: string;
+  city?: string;
 }) {
-  gtag("event", "spot_viewed", params);
+  gtag("event", "spot_viewed", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackSpotSaved(params: { spotId: string }) {
-  gtag("event", "spot_saved", params);
+export function trackSpotSaved(params: { spotId: string; city?: string }) {
+  gtag("event", "spot_saved", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackSpotSubmitted(params: { spotId: string }) {
-  gtag("event", "spot_submitted", params);
+export function trackSpotSubmitted(params: { spotId: string; city?: string }) {
+  gtag("event", "spot_submitted", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackFilterApplied(params: { type: string; value: string }) {
-  gtag("event", "filter_applied", params);
+export function trackFilterApplied(params: { type: string; value: string; city?: string }) {
+  gtag("event", "filter_applied", { ...params, city: params.city || getCityFromUrl() });
 }
 
 export function trackSearchPerformed(params: {
   query: string;
   resultCount: number;
+  city?: string;
 }) {
-  gtag("event", "search_performed", params);
+  gtag("event", "search_performed", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackLogin(params: { method: string }) {
-  gtag("event", "login", params);
+export function trackLogin(params: { method: string; city?: string }) {
+  gtag("event", "login", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackSignup(params: { method: string }) {
-  gtag("event", "signup", params);
+export function trackSignup(params: { method: string; city?: string }) {
+  gtag("event", "signup", { ...params, city: params.city || getCityFromUrl() });
 }
 
-export function trackAffiliateClick(params: { destination: string }) {
-  gtag("event", "affiliate_click", params);
+export function trackAffiliateClick(params: { destination: string; city?: string }) {
+  gtag("event", "affiliate_click", { ...params, city: params.city || getCityFromUrl() });
 }

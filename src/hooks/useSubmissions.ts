@@ -11,7 +11,6 @@ export function useSubmissions(status: string = "pending") {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
 
     const q = query(
       collection(db, "submissions"),

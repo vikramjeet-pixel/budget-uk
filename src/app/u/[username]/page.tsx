@@ -77,6 +77,8 @@ export default async function UserProfilePage({ params }: PageProps) {
       })
     : null;
 
+  const slugify = (text: string) => encodeURIComponent(text.toLowerCase().replace(/\s+/g, "-"));
+
   return (
     <div className="min-h-screen bg-[#fcfbf8]">
       <main className="max-w-4xl mx-auto px-4 py-12 flex flex-col gap-12">
@@ -119,7 +121,7 @@ export default async function UserProfilePage({ params }: PageProps) {
               {spots.map((spot) => (
                 <Link
                   key={spot.id}
-                  href={`/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`}
+                  href={`/${spot.city || "london"}/${slugify(spot.neighbourhood)}/${spot.slug}`}
                   className="block"
                 >
                   <SpotCard spot={spot} showDistance={false} />
@@ -143,7 +145,7 @@ export default async function UserProfilePage({ params }: PageProps) {
                 {favourites.map((spot) => (
                   <Link
                     key={spot.id}
-                    href={`/london/${encodeURIComponent(spot.neighbourhood.toLowerCase())}/${spot.slug}`}
+                    href={`/${spot.city || "london"}/${slugify(spot.neighbourhood)}/${spot.slug}`}
                     className="block"
                   >
                     <SpotCard spot={spot} showDistance={false} />

@@ -41,7 +41,8 @@ export async function GET(request: Request) {
     } else {
       return NextResponse.json({ error: 'Location not found' }, { status: 404 });
     }
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

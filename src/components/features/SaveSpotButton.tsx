@@ -27,7 +27,8 @@ export function SaveSpotButton({ spotId }: SaveSpotButtonProps) {
     const wasSaved = isSaved;
     await toggleSave();
     if (!wasSaved) {
-      trackSpotSaved({ spotId });
+      const city = pathname.split("/").filter(Boolean)[0] || "london";
+      trackSpotSaved({ spotId, city });
     }
   };
 

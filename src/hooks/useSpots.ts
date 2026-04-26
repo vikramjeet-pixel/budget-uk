@@ -4,6 +4,7 @@ import { db } from "@/lib/firebase/client";
 import type { Spot } from "@/types";
 
 interface UseSpotsOptions {
+  city?: string;
   categories?: string[];
   neighbourhood?: string;
   neighbourhoods?: string[];
@@ -13,21 +14,38 @@ interface UseSpotsOptions {
   status?: string;
 }
 
-export function useSpots(options?: UseSpotsOptions) {
+export function useSpots(
+  city: string,
+  category?: string | string[],
+  neighbourhood?: string | string[],
+  priceTier?: string | string[],
+  tags?: string[],
+  enabled: boolean = true
+) {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Base query: get up to 200 live spots
+    if (!enabled) {
+      setSpots([]);
+      setLoading(false);
+      return;
+    }
+    const cats = typeof category === "string" ? [category] : category || [];
+    const nbhs = typeof neighbourhood === "string" ? [neighbourhood] : neighbourhood || [];
+    const tiers = typeof priceTier === "string" ? [priceTier] : priceTier || [];
+
+    // Base query: get up to 200 live spots for this city
     const constraints: QueryConstraint[] = [
-      where("status", "==", options?.status || "live"),
+      where("status", "==", "live"),
+      where("city", "==", city.toLowerCase()),
       limit(200)
     ];
 
-    // Build the query. We prefer server-side filtering for categories first.
-    if (options?.categories && options.categories.length > 0) {
-      constraints.push(where("category", "in", options.categories.slice(0, 10)));
+    // Server-side category filtering (if 10 or fewer)
+    if (cats.length > 0 && cats.length <= 10) {
+      constraints.push(where("category", "in", cats));
     }
 
     const q = query(collection(db, "spots"), ...constraints);
@@ -36,27 +54,23 @@ export function useSpots(options?: UseSpotsOptions) {
       let data: Spot[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Spot));
 
       // --- CLIENT-SIDE FILTERING REFINEMENT ---
-      // We do this to handle multi-field "OR" logic and "in" limits beyond Firestore's capabilities.
       
-      // Neighbourhood/Borough multi-select
-      const selectedNbhs = options?.neighbourhoods || (options?.neighbourhood ? [options.neighbourhood] : []);
-      const selectedBoroughs = options?.boroughs || [];
-
-      if (selectedNbhs.length > 0 || selectedBoroughs.length > 0) {
-        data = data.filter(spot => {
-          const matchNbh = selectedNbhs.includes(spot.neighbourhood);
-          const matchBorough = selectedBoroughs.includes(spot.borough);
-          return matchNbh || matchBorough;
-        });
+      // Category fallback (if > 10)
+      if (cats.length > 10) {
+        data = data.filter(spot => cats.includes(spot.category));
       }
 
-      if (options?.priceTiers && options.priceTiers.length > 0) {
-        data = data.filter(spot => options.priceTiers!.includes(spot.priceTier));
+      if (nbhs.length > 0) {
+        data = data.filter(spot => nbhs.includes(spot.neighbourhood));
       }
 
-      if (options?.tags && options.tags.length > 0) {
+      if (tiers.length > 0) {
+        data = data.filter(spot => tiers.includes(spot.priceTier));
+      }
+
+      if (tags && tags.length > 0) {
         data = data.filter(spot => 
-          spot.tags?.some((tag: string) => options.tags?.includes(tag))
+          spot.tags?.some((tag: string) => tags.includes(tag))
         );
       }
 
@@ -70,15 +84,7 @@ export function useSpots(options?: UseSpotsOptions) {
     });
 
     return () => unsubscribe();
-  }, [
-    options?.categories ? JSON.stringify(options.categories) : undefined,
-    options?.neighbourhood,
-    options?.neighbourhoods ? JSON.stringify(options.neighbourhoods) : undefined,
-    options?.boroughs ? JSON.stringify(options.boroughs) : undefined,
-    options?.priceTiers ? JSON.stringify(options.priceTiers) : undefined,
-    options?.status,
-    options?.tags ? JSON.stringify(options.tags) : undefined
-  ]);
+  }, [city, JSON.stringify(category), JSON.stringify(neighbourhood), JSON.stringify(priceTier), JSON.stringify(tags), enabled]);
 
   return { spots, loading, error };
 }

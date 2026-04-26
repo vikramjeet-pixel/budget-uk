@@ -39,10 +39,10 @@ export default function GlobalError({
 
       <div className="flex flex-col gap-2 max-w-sm">
         <h2 className="t-body-lg font-semibold text-[#1c1c1c]">
-          Something's off — we've been notified
+          Something&apos;s off — we&apos;ve been notified
         </h2>
         <p className="t-caption text-[#5f5f5d]">
-          If this keeps happening, please let us know and we'll take a look.
+          If this keeps happening, please let us know and we&apos;ll take a look.
         </p>
       </div>
 

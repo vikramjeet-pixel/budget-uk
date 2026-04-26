@@ -10,15 +10,18 @@ import {
   getDocs,
   getDoc,
   doc,
+  type Query,
+  type DocumentData
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Header } from "@/components/features/Header";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Edit3, Trash2, ChevronDown, ChevronUp, AlertCircle, RefreshCw } from "lucide-react";
+import { Check, X, Edit3, Trash2, ChevronDown, ChevronUp, AlertCircle, RefreshCw, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Submission, Spot, Report } from "@/types";
+import { CITIES } from "@/data/cities";
 
 type Tab = "queue" | "live" | "reports";
 
@@ -47,7 +50,7 @@ function TableEmpty({ children }: { children: React.ReactNode }) {
 
 // ─── Queue tab ─────────────────────────────────────────────────────────────────
 
-function QueueTab({ getToken }: { getToken: () => Promise<string> }) {
+function QueueTab({ getToken, city }: { getToken: () => Promise<string>, city: string }) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -56,17 +59,27 @@ function QueueTab({ getToken }: { getToken: () => Promise<string> }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "submissions"),
-      where("status", "==", "pending"),
-      orderBy("createdAt", "asc")
-    );
+    setLoading(true);
+    let q: Query<DocumentData> = collection(db, "submissions");
+    
+    q = query(q, where("status", "==", "pending"));
+    
+    if (city !== "all") {
+      q = query(q, where("city", "==", city));
+    }
+    
+    q = query(q, orderBy("createdAt", "asc"));
+
     const unsub = onSnapshot(q, (snap) => {
       setSubmissions(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Submission)));
       setLoading(false);
+    }, (err) => {
+      console.error("Queue query error:", err);
+      setError("Failed to load queue. Make sure you have the required Firestore indexes.");
+      setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [city]);
 
   const callApi = useCallback(
     async (path: string, body: Record<string, unknown>) => {
@@ -124,7 +137,7 @@ function QueueTab({ getToken }: { getToken: () => Promise<string> }) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#f7f4ed] border-b border-passive">
-              {["Spot", "Area", "Category", "Votes", "Actions"].map((h) => (
+              {["Spot", "City/Area", "Category", "Votes", "Actions"].map((h) => (
                 <th key={h} className="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-[#5f5f5d]">
                   {h}
                 </th>
@@ -146,7 +159,13 @@ function QueueTab({ getToken }: { getToken: () => Promise<string> }) {
                         <span className="text-[12px] text-[#5f5f5d] truncate">{s.description}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-sm text-[#1c1c1c]">{s.neighbourhood}<br /><span className="text-[#5f5f5d] text-[12px]">{s.borough}</span></td>
+                    <td className="px-5 py-4 text-sm text-[#1c1c1c]">
+                      <div className="flex flex-col">
+                        <span className="font-semibold uppercase text-[10px] text-[#5f5f5d]">{s.city}</span>
+                        <span>{s.neighbourhood}</span>
+                        <span className="text-[#5f5f5d] text-[12px]">{s.borough}</span>
+                      </div>
+                    </td>
                     <td className="px-5 py-4"><Badge variant="category" className="text-[11px]">{s.category}</Badge></td>
                     <td className="px-5 py-4 font-bold text-[#1c1c1c]">{s.voteCount}</td>
                     <td className="px-5 py-4">
@@ -225,7 +244,7 @@ interface EditState {
   tagsRaw: string;
 }
 
-function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
+function LiveSpotsTab({ getToken, city }: { getToken: () => Promise<string>, city: string }) {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -236,13 +255,27 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
   const [syncResult, setSyncResult] = useState<{ id: string; ok: boolean } | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "spots"), where("status", "==", "live"), orderBy("createdAt", "desc"));
+    setLoading(true);
+    let q: Query<DocumentData> = collection(db, "spots");
+    
+    q = query(q, where("status", "==", "live"));
+    
+    if (city !== "all") {
+      q = query(q, where("city", "==", city));
+    }
+    
+    q = query(q, orderBy("createdAt", "desc"));
+
     const unsub = onSnapshot(q, (snap) => {
       setSpots(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Spot)));
       setLoading(false);
+    }, (err) => {
+      console.error("Spots query error:", err);
+      setError("Failed to load spots. City filter may require a composite index.");
+      setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [city]);
 
   const startEdit = (spot: Spot) => {
     setEditingId(spot.id!);
@@ -312,7 +345,6 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
         throw new Error((d as { error?: string }).error ?? `HTTP ${res.status}`);
       }
       setSyncResult({ id: spotId, ok: true });
-      // Clear the success indicator after 3s
       setTimeout(() => setSyncResult(null), 3000);
     } catch (e) {
       setError((e as Error).message);
@@ -334,7 +366,7 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#f7f4ed] border-b border-passive">
-              {["Spot", "Area", "Tags", "Price", "Google Places", "Actions"].map((h) => (
+              {["Spot", "City/Area", "Tags", "Price", "Google Places", "Actions"].map((h) => (
                 <th key={h} className="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-[#5f5f5d]">
                   {h}
                 </th>
@@ -354,7 +386,12 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
                       <span className="font-bold text-[#1c1c1c] text-sm">{spot.name}</span>
                       <p className="text-[12px] text-[#5f5f5d] line-clamp-1 mt-0.5">{spot.description}</p>
                     </td>
-                    <td className="px-5 py-4 text-sm text-[#1c1c1c]">{spot.neighbourhood}</td>
+                    <td className="px-5 py-4 text-sm text-[#1c1c1c]">
+                      <div className="flex flex-col">
+                        <span className="font-semibold uppercase text-[10px] text-[#5f5f5d]">{spot.city}</span>
+                        <span>{spot.neighbourhood}</span>
+                      </div>
+                    </td>
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1 max-w-50">
                         {spot.tags.slice(0, 3).map((t) => (
@@ -398,11 +435,6 @@ function LiveSpotsTab({ getToken }: { getToken: () => Promise<string> }) {
                               </Button>
                             );
                           })()}
-                          {(spot as Spot & { placeData?: { lastSyncedAt?: { toDate?: () => Date } } }).placeData?.lastSyncedAt?.toDate && (
-                            <span className="text-[10px] text-[#5f5f5d]">
-                              Last: {(spot as Spot & { placeData?: { lastSyncedAt?: { toDate?: () => Date } } }).placeData!.lastSyncedAt!.toDate!().toLocaleDateString("en-GB")}
-                            </span>
-                          )}
                         </div>
                       ) : (
                         <span className="text-[11px] text-[#b0b0ae]">—</span>
@@ -519,7 +551,6 @@ function ReportsTab({ getToken }: { getToken: () => Promise<string> }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      // Also dismiss the report
       await fetch(`/api/admin/reports/${reportId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -607,6 +638,7 @@ const TABS: { key: Tab; label: string }[] = [
 export default function AdminDashboard() {
   const { user } = useAuthContext();
   const [tab, setTab] = useState<Tab>("queue");
+  const [cityFilter, setCityFilter] = useState("all");
 
   const getToken = useCallback(async (): Promise<string> => {
     if (!user) throw new Error("Not authenticated");
@@ -617,9 +649,31 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-[#fcfbf8]">
       <Header />
       <main className="max-w-300 mx-auto px-4 py-28">
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="t-h1 text-[#1c1c1c] tracking-tighter">Admin</h1>
-          <p className="t-body text-[#5f5f5d]">Manage submissions, live spots, and community reports.</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div className="flex flex-col gap-2">
+            <h1 className="t-h1 text-[#1c1c1c] tracking-tighter">Admin</h1>
+            <p className="t-body text-[#5f5f5d]">Manage submissions, live spots, and community reports.</p>
+          </div>
+          
+          <div className="flex flex-col gap-2 min-w-48">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-[#5f5f5d] flex items-center gap-1.5">
+              <Filter className="w-3 h-3" />
+              Filter by City
+            </label>
+            <div className="relative">
+              <select
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+                className="w-full h-10 pl-3 pr-10 text-sm bg-white border border-passive rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c1c1c]/10"
+              >
+                <option value="all">All Cities</option>
+                {CITIES.map(c => (
+                  <option key={c.slug} value={c.slug}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#5f5f5d] pointer-events-none" />
+            </div>
+          </div>
         </div>
 
         {/* Tab nav */}
@@ -640,8 +694,8 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {tab === "queue" && <QueueTab getToken={getToken} />}
-        {tab === "live" && <LiveSpotsTab getToken={getToken} />}
+        {tab === "queue" && <QueueTab getToken={getToken} city={cityFilter} />}
+        {tab === "live" && <LiveSpotsTab getToken={getToken} city={cityFilter} />}
         {tab === "reports" && <ReportsTab getToken={getToken} />}
       </main>
     </div>

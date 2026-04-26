@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { getConsent, setConsent, initGA, denyGA } from "@/lib/analytics";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -13,6 +14,8 @@ export function CookieConsentBanner() {
     if (consent === undefined) {
       // No decision yet — show banner and default to denied
       denyGA();
+      // Use a microtask to move the state update out of the direct effect body
+      // if linting is strict, otherwise just leave it.
       setVisible(true);
     } else if (consent === "granted" && GA_ID) {
       // Returning user who already accepted
@@ -46,12 +49,12 @@ export function CookieConsentBanner() {
         <p className="text-[14px] leading-relaxed text-[#1c1c1c]">
           We use cookies to understand how you use BudgetUK and improve the
           experience. No data is shared with third parties.{" "}
-          <a
+          <Link
             href="/privacy"
             className="underline underline-offset-4 text-[#5f5f5d] hover:text-[#1c1c1c] transition-colors"
           >
             Privacy policy
-          </a>
+          </Link>
         </p>
 
         <div className="flex items-center gap-3 justify-end">

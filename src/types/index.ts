@@ -40,7 +40,7 @@ export interface Spot {
   neighbourhood: string;
   borough: string;
   postcodeDistrict: string;
-  city: "london";
+  city: string;
   location: GeoPoint;
   geohash: string;
   priceTier: PriceTier;
@@ -82,7 +82,7 @@ export interface Submission {
   neighbourhood: string;
   borough: string;
   postcodeDistrict: string;
-  city: "london";
+  city: string;
   location: GeoPoint;
   geohash: string;
   priceTier: PriceTier;

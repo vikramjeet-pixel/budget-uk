@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, startAt, endAt, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, startAt, endAt, getDocs, where } from "firebase/firestore";
 import * as geofire from "geofire-common";
 import { db } from "@/lib/firebase/client";
+import type { Spot } from "@/types";
 
-interface NearbyOptions {
-  center: [number, number] | null; // [lat, lng]
-  radiusInM?: number; 
-  category?: string;
-  enabled?: boolean;
-}
+export type NearbySpot = Spot & { distance: number };
 
-export function useNearbySpots({ center, radiusInM = 1500, category, enabled = true }: NearbyOptions) {
-  const [spots, setSpots] = useState<any[]>([]);
+export function useNearbySpots(
+  city: string,
+  lat: number | null,
+  lng: number | null,
+  radiusInM: number = 1500,
+  category?: string,
+  enabled: boolean = true
+) {
+  const [spots, setSpots] = useState<NearbySpot[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!enabled || !center || center.length !== 2) {
+    if (!enabled || lat === null || lng === null) {
       setSpots([]);
       return;
     }
@@ -26,12 +29,15 @@ export function useNearbySpots({ center, radiusInM = 1500, category, enabled = t
       setError(null);
 
       try {
+        const center: [number, number] = [lat, lng];
         const bounds = geofire.geohashQueryBounds(center, radiusInM);
         const promises = [];
 
         for (const b of bounds) {
           const q = query(
             collection(db, "spots"),
+            where("city", "==", city.toLowerCase()),
+            where("status", "==", "live"),
             orderBy("geohash"),
             startAt(b[0]),
             endAt(b[1])
@@ -41,19 +47,17 @@ export function useNearbySpots({ center, radiusInM = 1500, category, enabled = t
 
         const snapshots = await Promise.all(promises);
 
-        const matchingDocs: any[] = [];
+        const matchingDocs: NearbySpot[] = [];
         for (const snap of snapshots) {
           for (const doc of snap.docs) {
-            const data = doc.data();
+            const data = doc.data() as Omit<Spot, "id">;
             
-            // Client side filters avoiding incredibly heavy composite indexing demands dynamically globally
-            if (data.status !== "live") continue;
             if (category && data.category !== category) continue;
 
-            const lat = data.location.latitude;
-            const lng = data.location.longitude;
+            const spotLat = data.location.latitude;
+            const spotLng = data.location.longitude;
 
-            const distanceInKm = geofire.distanceBetween([lat, lng], center);
+            const distanceInKm = geofire.distanceBetween([spotLat, spotLng], center);
             const distanceInM = distanceInKm * 1000;
 
             if (distanceInM <= radiusInM) {
@@ -61,28 +65,24 @@ export function useNearbySpots({ center, radiusInM = 1500, category, enabled = t
                 id: doc.id,
                 distance: distanceInM,
                 ...data
-              });
+              } as NearbySpot);
             }
           }
         }
 
-        // De-duplicate any intersecting geohash boundary boxes dynamically bounding smoothly
         const unique = Array.from(new Map(matchingDocs.map((item) => [item.id, item])).values());
-        
-        // Sorting automatically directly sorting shortest walks nearest locally!
         unique.sort((a, b) => a.distance - b.distance);
-
         setSpots(unique);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching nearby spots:", err);
-        setError(err.message);
+        setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     };
 
     fetchNearby();
-  }, [enabled, center?.[0], center?.[1], radiusInM, category]);
+  }, [city, enabled, lat, lng, radiusInM, category]);
 
   return { spots, loading, error };
 }

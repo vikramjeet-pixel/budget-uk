@@ -113,6 +113,7 @@ export async function POST(req: NextRequest) {
       tips,
       tags,
       website,
+      city,
     } = body;
 
     // Basic validation to prevent crashes
@@ -137,7 +138,7 @@ export async function POST(req: NextRequest) {
       neighbourhood: neighbourhood.trim(),
       borough: (borough || "").trim(),
       postcodeDistrict: (postcodeDistrict || "").toUpperCase().trim(),
-      city: "london",
+      city: (city || "london").toLowerCase().trim(),
       location: new GeoPoint(latitude, longitude),
       geohash,
       priceTier,
@@ -170,8 +171,8 @@ export async function POST(req: NextRequest) {
       submissionId: docRef.id,
       flagged: spamResult.isSpam,
     });
-  } catch (error) {
-    console.error("Submission API Error:", error);
+  } catch (err) {
+    console.error("Submission API Error:", err);
     return NextResponse.json(
       { error: "An internal error occurred. Please try again later." },
       { status: 500 }
