@@ -8,6 +8,7 @@ import { Footer } from "@/components/features/Footer";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CookieConsentBanner } from "@/components/features/CookieConsentBanner";
 import { InstallPrompt } from "@/components/features/InstallPrompt";
+import { WelcomeModal } from "@/components/features/WelcomeModal";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
@@ -67,6 +68,7 @@ export default function RootLayout({
           <Footer />
           <CookieConsentBanner />
           <InstallPrompt />
+          <WelcomeModal />
         </AuthProvider>
       </body>
     </html>
