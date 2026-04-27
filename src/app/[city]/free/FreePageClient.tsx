@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ExternalLink, BookOpen, Clock, AlertCircle } from "lucide-react";
 import {
   FREE_SECTIONS,
@@ -202,19 +203,24 @@ function CommunitySpots({
 }
 
 function SpotWithStatus({ spot, showStatus, citySlug }: { spot: SerializedSpot; showStatus: boolean; citySlug: string }) {
+  const router = useRouter();
   const open = useMemo(() => {
     if (!showStatus || !spot.openingHoursText?.length) return null;
     return isOpenNowFromPlacesText(spot.openingHoursText);
   }, [spot.openingHoursText, showStatus]);
 
+  const href = `/${citySlug}/${encodeURIComponent(spot.neighbourhood.toLowerCase().replace(/\s+/g, "-"))}/${spot.slug}`;
+
   return (
-    <div className="relative">
-      <Link
-        href={`/${citySlug}/${encodeURIComponent(spot.neighbourhood.toLowerCase().replace(/\s+/g, "-"))}/${spot.slug}`}
-        className="block"
-      >
-        <SpotCard spot={spot} showDistance={false} />
-      </Link>
+    <div
+      className="relative cursor-pointer"
+      onClick={(e) => {
+        // Don't navigate if the click was on the website link inside SpotCard
+        if ((e.target as HTMLElement).closest("a")) return;
+        router.push(href);
+      }}
+    >
+      <SpotCard spot={spot} showDistance={false} />
       {showStatus && open !== null && (
         <div className="absolute top-2 right-2">
           <StatusBadge open={open} />
