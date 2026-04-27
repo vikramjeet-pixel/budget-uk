@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DIET_TABS } from "@/data/diet";
 import type { DietTab } from "@/data/diet";
 import { SpotCard } from "@/components/features/SpotCard";
-import type { Spot } from "@/types";
+import type { SerializedSpot } from "@/types";
 
 // ── Tab nav ───────────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ export function DietPageClient({
   cityName,
 }: {
   activeTab: DietTab;
-  spots: Spot[];
+  spots: SerializedSpot[];
   citySlug: string;
   cityName: string;
 }) {

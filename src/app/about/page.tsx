@@ -28,7 +28,7 @@ export default function AboutPage() {
 
         <p>
           Know a hidden gem? Head to{" "}
-          <Link href="/community/add" className="underline underline-offset-4 hover:text-[#5f5f5d]">
+          <Link href="/london/community/add" className="underline underline-offset-4 hover:text-[#5f5f5d]">
             Submit a Spot
           </Link>{" "}
           and help others find it.

@@ -10,7 +10,7 @@ import {
 } from "@/data/freeLondon";
 import type { FreeEntry, FreeSection } from "@/data/freeLondon";
 import { SpotCard } from "@/components/features/SpotCard";
-import type { Spot } from "@/types";
+import type { SerializedSpot } from "@/types";
 
 // ── Open-now toggle ───────────────────────────────────────────────────────────
 
@@ -147,7 +147,7 @@ function CommunitySpots({
   openNow,
   citySlug,
 }: {
-  spots: Spot[];
+  spots: SerializedSpot[];
   openNow: boolean;
   citySlug: string;
 }) {
@@ -201,7 +201,7 @@ function CommunitySpots({
   );
 }
 
-function SpotWithStatus({ spot, showStatus, citySlug }: { spot: Spot; showStatus: boolean; citySlug: string }) {
+function SpotWithStatus({ spot, showStatus, citySlug }: { spot: SerializedSpot; showStatus: boolean; citySlug: string }) {
   const open = useMemo(() => {
     if (!showStatus || !spot.openingHoursText?.length) return null;
     return isOpenNowFromPlacesText(spot.openingHoursText);
@@ -245,7 +245,7 @@ function SectionNav() {
 
 // ── Root client component ─────────────────────────────────────────────────────
 
-export function FreePageClient({ spots, citySlug }: { spots: Spot[]; citySlug: string }) {
+export function FreePageClient({ spots, citySlug }: { spots: SerializedSpot[]; citySlug: string }) {
   const [openNow, setOpenNow] = useState(false);
   const cityName = citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
 

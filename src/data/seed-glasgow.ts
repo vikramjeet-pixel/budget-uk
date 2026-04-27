@@ -418,5 +418,5 @@ export const spots = [
     description: "One of the world's most famous electronic music clubs, a Glasgow institution with an incredible sound system.",
     tips: ["Check their website for upcoming world-class DJ lineups.", "The atmosphere is legendary."],
     website: "https://subclub.co.uk"
-  },
+  }
 ];

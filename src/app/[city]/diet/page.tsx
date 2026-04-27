@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
 import { adminDb } from "@/lib/firebase/admin";
-import type { Spot } from "@/types";
+import type { SerializedSpot } from "@/types";
 import { DIET_TABS, DEFAULT_TAB_ID } from "@/data/diet";
 import { DietPageClient } from "./DietPageClient";
+
+function serializeSpot(doc: FirebaseFirestore.QueryDocumentSnapshot): SerializedSpot {
+  const data = doc.data();
+  return {
+    ...data,
+    id: doc.id,
+    location: {
+      latitude: data.location?._latitude ?? data.location?.latitude ?? 0,
+      longitude: data.location?._longitude ?? data.location?.longitude ?? 0,
+    },
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : String(data.createdAt),
+    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : String(data.updatedAt),
+  } as SerializedSpot;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +50,7 @@ export default async function DietPage({ params, searchParams }: PageProps) {
   const activeTab = DIET_TABS.find((t) => t.id === tab) ?? DIET_TABS.find((t) => t.id === DEFAULT_TAB_ID)!;
   const cityName = citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
 
-  let spots: Spot[] = [];
+  let spots: SerializedSpot[] = [];
   try {
     const snap = await adminDb
       .collection("spots")
@@ -46,7 +60,7 @@ export default async function DietPage({ params, searchParams }: PageProps) {
       .limit(100)
       .get();
     spots = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() } as Spot))
+      .map(serializeSpot)
       .filter((s) => s.status === "live");
   } catch (err) {
     console.error("DietPage data fetch error:", err);
