@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, ChevronDown } from "lucide-react";
 import { Button, IconButton } from "@/components/ui/button";
 import { useScroll } from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 import { CitySelector } from "./CitySelector";
 
-const STATIC_PAGES = ["about", "privacy", "terms", "login", "signup", "account"];
+const STATIC_PAGES = ["about", "about-me", "privacy", "terms", "login", "signup", "account"];
+
+const TRANSPORT_CITIES = [
+  { slug: "london", name: "London" },
+  { slug: "birmingham", name: "Birmingham" },
+];
 
 export function Header() {
   const scrolled = useScroll(10);
@@ -37,11 +42,12 @@ export function Header() {
     { name: "Map", href: `/${currentCity}` },
     { name: "Spots", href: `/${currentCity}/spots` },
     { name: "Free", href: `/${currentCity}/free` },
-    { name: "Transport", href: `/${currentCity}/transport` },
     { name: "Events", href: `/${currentCity}/events` },
     { name: "Community", href: `/${currentCity}/community` },
     { name: "About", href: "/about" },
   ];
+
+  const isOnTransport = pathname.includes("/transport");
 
   React.useEffect(() => {
     if (!debouncedSearch.trim()) return;
@@ -86,6 +92,35 @@ export function Header() {
                   </Link>
                 </li>
               ))}
+              {/* Transport dropdown */}
+              <li>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline focus:outline-none",
+                        isOnTransport && "font-bold underline"
+                      )}
+                    >
+                      Transport
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                      align="start"
+                      sideOffset={8}
+                      className="z-50 w-48 rounded-[8px] border border-[var(--border-passive)] bg-[#f7f4ed] p-1 shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+                    >
+                      {TRANSPORT_CITIES.map((city) => (
+                        <DropdownMenu.Item key={city.slug} asChild className="cursor-pointer focus:bg-[var(--border-passive)] focus:outline-none rounded-[4px] px-3 py-2 text-[14px] text-[#1c1c1c]">
+                          <Link href={`/${city.slug}/transport`}>{city.name}</Link>
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
+              </li>
             </ul>
           </nav>
         </div>
@@ -189,6 +224,35 @@ export function Header() {
                   </Link>
                 </li>
               ))}
+              {/* Transport dropdown (mobile) */}
+              <li>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 text-[#1c1c1c] text-[14px] font-normal underline-offset-4 hover:underline focus:outline-none",
+                        isOnTransport && "font-bold underline"
+                      )}
+                    >
+                      Transport
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                      align="start"
+                      sideOffset={8}
+                      className="z-50 w-48 rounded-[8px] border border-[var(--border-passive)] bg-[#f7f4ed] p-1 shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2"
+                    >
+                      {TRANSPORT_CITIES.map((city) => (
+                        <DropdownMenu.Item key={city.slug} asChild className="cursor-pointer focus:bg-[var(--border-passive)] focus:outline-none rounded-[4px] px-3 py-2 text-[14px] text-[#1c1c1c]">
+                          <Link href={`/${city.slug}/transport`} onClick={() => setMobileMenuOpen(false)}>{city.name}</Link>
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
+              </li>
               <li className="flex flex-col space-y-3 pt-4 border-t border-[var(--border-passive)]">
                 {user ? (
                   <>

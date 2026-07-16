@@ -29,6 +29,9 @@ export function Footer() {
                 <Link href="/about" className="text-[#5f5f5d] text-[14px] hover:text-[#1c1c1c] hover:underline underline-offset-4 transition-colors">Our Mission</Link>
               </li>
               <li>
+                <Link href="/about-me" className="text-[#5f5f5d] text-[14px] hover:text-[#1c1c1c] hover:underline underline-offset-4 transition-colors">About Me</Link>
+              </li>
+              <li>
                 <Link href="/team" className="text-[#5f5f5d] text-[14px] hover:text-[#1c1c1c] hover:underline underline-offset-4 transition-colors">Team</Link>
               </li>
               <li>
