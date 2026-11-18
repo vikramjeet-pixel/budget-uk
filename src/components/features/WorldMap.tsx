@@ -14,6 +14,8 @@ import {
   trackMapZoomLevel, 
   trackMapHeatmapToggle 
 } from "@/lib/analytics";
+import { applyMapBaseTheme } from "@/lib/colorVision";
+import { useColorVision } from "@/hooks/useColorVision";
 
 interface WorldMapProps {
   className?: string;
@@ -37,6 +39,8 @@ export function WorldMap({
   showHeatmap = false
 }: WorldMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const visionMode = useColorVision();
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [zoom, setZoom] = useState(3);
   const { stats } = useWorldMapStats();
   const [comingSoonCity, setComingSoonCity] = useState<City | null>(null);
@@ -140,10 +144,15 @@ export function WorldMap({
     return () => clearTimeout(timer);
   }, [zoom]);
 
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const m = mapRef.current?.getMap();
+    if (m) applyMapBaseTheme(m, visionMode);
+  }, [visionMode, mapLoaded]);
+
   return (
     <div 
       className={cn("relative w-full h-full overflow-hidden bg-[#ede9e1]", className)}
-      style={{ filter: "sepia(0.05) saturate(0.95)" }}
     >
       <Map
         ref={mapRef}
@@ -151,6 +160,10 @@ export function WorldMap({
           longitude: WORLD_CENTER.lng,
           latitude: WORLD_CENTER.lat,
           zoom: WORLD_CENTER.zoom,
+        }}
+        onLoad={(e) => {
+          setMapLoaded(true);
+          applyMapBaseTheme(e.target, visionMode);
         }}
         onMove={evt => setZoom(evt.viewState.zoom)}
         mapStyle="https://tiles.openfreemap.org/styles/liberty"

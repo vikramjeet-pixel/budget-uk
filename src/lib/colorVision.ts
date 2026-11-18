@@ -266,3 +266,196 @@ export function getPinStyle(mode: ColorVisionMode, category: string): PinStyle {
   const theme = MAP_PIN_THEMES[mode];
   return theme[category as PinCategory] ?? theme.gym;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               Map base themes                              */
+/* -------------------------------------------------------------------------- */
+
+export interface MapBasePalette {
+  land: string;
+  landAlt: string;
+  park: string;
+  water: string;
+  waterLine: string;
+  building: string;
+  roadMajor: string;
+  roadMajorCasing: string;
+  roadSecondary: string;
+  roadMinor: string;
+  roadMinorCasing: string;
+  rail: string;
+  boundary: string;
+  label: string;
+  labelHalo: string;
+  waterLabel: string;
+  waterHalo: string;
+}
+
+export const MAP_BASE_THEMES: Record<VisionGroup, MapBasePalette> = {
+  default: {
+    land: "#F7F4ED",
+    landAlt: "#EFECE4",
+    park: "#D6E5C6",
+    water: "#A3CDE8",
+    waterLine: "#7FB5D9",
+    building: "#E5E0D5",
+    roadMajor: "#F3C969",
+    roadMajorCasing: "#D9A74A",
+    roadSecondary: "#FAE5A8",
+    roadMinor: "#FCFBF8",
+    roadMinorCasing: "#DEDAD0",
+    rail: "#B8B3A8",
+    boundary: "#9E9A90",
+    label: "#1C1C1C",
+    labelHalo: "#FCFBF8",
+    waterLabel: "#2B5B7A",
+    waterHalo: "#E6F2FA",
+  },
+  "red-green": {
+    land: "#F7F4ED",
+    landAlt: "#EDE9DF",
+    park: "#EAE0C0",
+    water: "#89C4F4",
+    waterLine: "#4B9CD3",
+    building: "#E2DDD2",
+    roadMajor: "#F5B041",
+    roadMajorCasing: "#C87D12",
+    roadSecondary: "#FDE2B0",
+    roadMinor: "#FCFBF8",
+    roadMinorCasing: "#D5D0C5",
+    rail: "#8E8A80",
+    boundary: "#78746C",
+    label: "#1C1C1C",
+    labelHalo: "#FCFBF8",
+    waterLabel: "#0B4F7C",
+    waterHalo: "#EBF5FB",
+  },
+  "blue-yellow": {
+    land: "#F7F4ED",
+    landAlt: "#EFEAE4",
+    park: "#CBECE5",
+    water: "#76D7EA",
+    waterLine: "#26A6B5",
+    building: "#E4DFD7",
+    roadMajor: "#F7A1B0",
+    roadMajorCasing: "#C95B72",
+    roadSecondary: "#FCD5DC",
+    roadMinor: "#FCFBF8",
+    roadMinorCasing: "#D6D1C8",
+    rail: "#8F888A",
+    boundary: "#7A7274",
+    label: "#1C1C1C",
+    labelHalo: "#FCFBF8",
+    waterLabel: "#0E5A66",
+    waterHalo: "#E6FAFC",
+  },
+  mono: {
+    land: "#F5F5F5",
+    landAlt: "#EBEBEB",
+    park: "#DDDDDD",
+    water: "#B0B0B0",
+    waterLine: "#808080",
+    building: "#E2E2E2",
+    roadMajor: "#FFFFFF",
+    roadMajorCasing: "#404040",
+    roadSecondary: "#FAFAFA",
+    roadMinor: "#FFFFFF",
+    roadMinorCasing: "#999999",
+    rail: "#737373",
+    boundary: "#595959",
+    label: "#141414",
+    labelHalo: "#FFFFFF",
+    waterLabel: "#1C1C1C",
+    waterHalo: "#E5E5E5",
+  },
+};
+
+export interface MapLibreStyleLayer {
+  id: string;
+  type: string;
+  layout?: unknown;
+}
+
+export interface MapLibreLike {
+  getStyle?: () => { layers?: MapLibreStyleLayer[] } | undefined;
+  setPaintProperty?: (layerId: string, name: string, value: unknown) => void;
+}
+
+export function applyMapBaseTheme(
+  map: MapLibreLike | null | undefined,
+  mode: ColorVisionMode,
+  isSatellite = false
+) {
+  if (!map || typeof map.getStyle !== "function" || typeof map.setPaintProperty !== "function") return;
+  try {
+    const style = map.getStyle();
+    if (!style?.layers) return;
+
+    const p = MAP_BASE_THEMES[VISION_GROUP[mode]];
+    const setPaint = (id: string, prop: string, val: string) => {
+      try {
+        map.setPaintProperty?.(id, prop, val);
+      } catch {
+        /* ignore layers whose paint schema differs (e.g. pattern-only fills) */
+      }
+    };
+
+    for (const layer of style.layers) {
+      const id = layer.id;
+      const lid = id.toLowerCase();
+
+      if (layer.type === "background") {
+        setPaint(id, "background-color", p.land);
+      } else if (layer.type === "fill") {
+        if (/water|ocean|river|lake|basin|swimming|reservoir/.test(lid)) {
+          setPaint(id, "fill-color", p.water);
+        } else if (/park|grass|wood|forest|nature|green|vegetation|cemetery|golf|pitch|playground|garden|meadow|scrub/.test(lid)) {
+          setPaint(id, "fill-color", p.park);
+        } else if (/building/.test(lid)) {
+          setPaint(id, "fill-color", p.building);
+        } else if (/landuse|landcover|residential|commercial|industrial|retail|hospital|school|university|stadium|sand|beach|glacier|ice/.test(lid)) {
+          setPaint(id, "fill-color", p.landAlt);
+        }
+      } else if (layer.type === "fill-extrusion") {
+        if (/building/.test(lid)) {
+          setPaint(id, "fill-extrusion-color", p.building);
+        }
+      } else if (layer.type === "line") {
+        const isCasing = /casing|outline/.test(lid);
+        if (/water|river|stream|canal|drain|ditch/.test(lid)) {
+          setPaint(id, "line-color", p.waterLine);
+        } else if (/boundary|border|admin/.test(lid)) {
+          setPaint(id, "line-color", p.boundary);
+        } else if (/rail|transit|ferry|aeroway/.test(lid)) {
+          setPaint(id, "line-color", p.rail);
+        } else if (/motorway|trunk|primary|highway/.test(lid)) {
+          setPaint(id, "line-color", isCasing ? p.roadMajorCasing : p.roadMajor);
+        } else if (/secondary|tertiary/.test(lid)) {
+          setPaint(id, "line-color", isCasing ? p.roadMinorCasing : p.roadSecondary);
+        } else if (/road|street|service|path|track|pedestrian|footway|cycleway|bridge|tunnel|link/.test(lid)) {
+          setPaint(id, "line-color", isCasing ? p.roadMinorCasing : p.roadMinor);
+        }
+      } else if (layer.type === "symbol") {
+        const hasTextField =
+          typeof layer.layout === "object" &&
+          layer.layout !== null &&
+          "text-field" in layer.layout &&
+          Boolean((layer.layout as Record<string, unknown>)["text-field"]);
+        if (hasTextField) {
+          if (isSatellite) {
+            setPaint(id, "text-color", "#FFFFFF");
+            setPaint(id, "text-halo-color", "#1C1C1C");
+          } else if (/water|ocean|sea|river|lake/.test(lid)) {
+            setPaint(id, "text-color", p.waterLabel);
+            setPaint(id, "text-halo-color", p.waterHalo);
+          } else {
+            setPaint(id, "text-color", p.label);
+            setPaint(id, "text-halo-color", p.labelHalo);
+          }
+        }
+      }
+    }
+  } catch {
+    /* ignore style updates while map is tearing down */
+  }
+}

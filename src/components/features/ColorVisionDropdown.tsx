@@ -31,6 +31,7 @@ export function ColorVisionDropdown({ className, align = "end", compact = false 
   const id = React.useId();
   const listboxId = `${id}-listbox`;
   const current = COLOR_VISION_OPTIONS.find((o) => o.value === mode) ?? COLOR_VISION_OPTIONS[0];
+  const currentSwatches = VISION_GROUP_SWATCHES[current.group];
 
   const openMenu = (index?: number) => {
     const selected = COLOR_VISION_OPTIONS.findIndex((o) => o.value === mode);
@@ -116,16 +117,25 @@ export function ColorVisionDropdown({ className, align = "end", compact = false 
         onClick={() => (open ? close() : openMenu())}
         onKeyDown={onTriggerKeyDown}
         className={cn(
-          "flex items-center gap-2 h-9 rounded-pill border border-[var(--border-passive)] bg-[#ede9e1] text-[#1c1c1c] text-[13px] font-medium",
+          "flex items-center gap-1.5 sm:gap-2 h-9 rounded-pill border border-[var(--border-passive)] bg-[#ede9e1] text-[#1c1c1c] text-[13px] font-medium",
           "hover:bg-[#f0ede6] transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1c1c1c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f7f4ed]",
-          compact ? "w-9 justify-center" : "px-3"
+          compact ? "w-9 justify-center" : "px-2.5 sm:px-3"
         )}
       >
         <Eye className="w-4 h-4 shrink-0" aria-hidden="true" />
         {!compact && (
           <>
-            <span className="max-w-[120px] truncate">{current.label}</span>
+            <span className="flex sm:hidden md:flex xl:hidden shrink-0 -space-x-1" aria-hidden="true">
+              {currentSwatches.map((c, i) => (
+                <span
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full border border-[#1c1c1c]/30"
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </span>
+            <span className="hidden sm:inline md:hidden xl:inline max-w-[120px] truncate">{current.label}</span>
             <ChevronDown
               className={cn("w-3.5 h-3.5 shrink-0 transition-transform", open && "rotate-180")}
               aria-hidden="true"
@@ -141,7 +151,7 @@ export function ColorVisionDropdown({ className, align = "end", compact = false 
           aria-label="Colour vision mode"
           onKeyDown={onListKeyDown}
           className={cn(
-            "absolute z-[70] mt-2 w-72 max-h-[70vh] overflow-y-auto rounded-lg border border-[var(--border-passive)] bg-[#f7f4ed] p-1.5 shadow-xl",
+            "absolute z-[70] mt-2 w-[min(18rem,calc(100vw-2rem))] sm:w-72 max-h-[70vh] overflow-y-auto rounded-lg border border-[var(--border-passive)] bg-[#f7f4ed] p-1.5 shadow-xl",
             "animate-in fade-in zoom-in-95 duration-150",
             align === "end" ? "right-0" : "left-0"
           )}

@@ -490,3 +490,9 @@ html[data-vision="achromatopsia"] .bg-\[\#FFCE00\].border-b {
   border-top: 2px solid #1C1C1C !important;
   border-bottom: 2px solid #1C1C1C !important;
 }
+
+/* Keep WebGL map sprite icons strictly grayscale in Achromatopsia without
+   affecting HTML markers or popups layered outside the canvas. */
+html[data-vision="achromatopsia"] .maplibregl-canvas {
+  filter: grayscale(1) contrast(1.08);
+}

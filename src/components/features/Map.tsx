@@ -1,29 +1,52 @@
 "use client";
 
 import React, { useRef, useState, useMemo } from "react";
-import Map, { MapRef, NavigationControl, Marker, Popup } from "react-map-gl/maplibre";
+import Map, { MapRef, NavigationControl, Marker, Popup, Source, Layer } from "react-map-gl/maplibre";
 import useSupercluster from "use-supercluster";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   Banknote, Beer, Coffee, Drama, Dumbbell, GraduationCap, House, Laptop,
-  MapPin, Rocket, Scissors, Shirt, ShoppingCart, Ticket, Utensils,
+  MapPin, Rocket, Satellite, Scissors, Shirt, ShoppingCart, Ticket, Utensils,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PIN_CATEGORIES,
   PIN_CATEGORY_LABELS,
+  VISION_GROUP,
+  VISION_GROUP_SWATCHES,
+  applyMapBaseTheme,
   getPinStyle,
   type ColorVisionMode,
   type PinCategory,
 } from "@/lib/colorVision";
 import { useColorVision } from "@/hooks/useColorVision";
 
+export interface MapSpot {
+  id?: string;
+  name: string;
+  category: string;
+  neighbourhood: string;
+  priceTier: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+interface ClusterPointProperties {
+  cluster?: boolean;
+  point_count?: number;
+  spot?: MapSpot;
+  spotId?: string;
+  category?: string;
+}
+
 interface MapViewProps {
   className?: string;
-  spots?: any[];
+  spots?: MapSpot[];
   activeSpotId?: string;
-  onMarkerClick?: (spot: any) => void;
+  onMarkerClick?: (spot: MapSpot | null) => void;
   userLocation?: [number, number] | null;
   initialCenter?: { lat: number; lng: number };
 }
@@ -67,6 +90,9 @@ function CategoryGlyph({ category, mode, size }: { category: string; mode: Color
 export function MapView({ className, spots = [], activeSpotId, userLocation, onMarkerClick, initialCenter }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const visionMode = useColorVision();
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [isSatellite, setIsSatellite] = useState(false);
+  const [firstSymbolLayerId, setFirstSymbolLayerId] = useState<string | undefined>(undefined);
   
   // Track viewport boundary dynamically passing native coordinate limitations heavily into supercluster wrappers
   const [zoom, setZoom] = useState(12);
@@ -110,12 +136,18 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
 
   const activeSpot = useMemo(() => spots.find(s => s.id === activeSpotId), [spots, activeSpotId]);
 
+  // Re-theme the MapLibre base vector layers whenever visionMode or satellite mode changes.
+  React.useEffect(() => {
+    if (!mapLoaded) return;
+    const m = mapRef.current?.getMap();
+    if (m) applyMapBaseTheme(m, visionMode, isSatellite);
+  }, [visionMode, isSatellite, mapLoaded]);
+
+  const userGpsColor = VISION_GROUP_SWATCHES[VISION_GROUP[visionMode]][0];
+
   return (
-    <div 
+    <div
       className={cn("relative w-full h-full overflow-hidden bg-[var(--border-passive)]", className)}
-      // The warm sepia tint is a Default-Vision aesthetic only — in accessible
-      // modes it would shift the carefully chosen pin colours.
-      style={visionMode === "default" ? { filter: "sepia(0.1) saturate(0.9)" } : undefined}
     >
       <Map
         ref={mapRef}
@@ -125,6 +157,12 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
           zoom: 12,
           pitch: 0,
           bearing: 0,
+        }}
+        onLoad={(e) => {
+          const firstSym = e.target.getStyle()?.layers?.find((l) => l.type === "symbol")?.id;
+          setFirstSymbolLayerId(firstSym);
+          setMapLoaded(true);
+          applyMapBaseTheme(e.target, visionMode, isSatellite);
         }}
         onMove={evt => {
           setZoom(evt.viewState.zoom);
@@ -146,6 +184,25 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
           showZoom={true} 
         />
 
+        {isSatellite && (
+          <Source
+            id="esri-world-imagery"
+            type="raster"
+            tiles={[
+              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            ]}
+            tileSize={256}
+            maxzoom={19}
+          >
+            <Layer
+              id="esri-world-imagery-layer"
+              type="raster"
+              beforeId={firstSymbolLayerId}
+              paint={{ "raster-opacity": 1 }}
+            />
+          </Source>
+        )}
+
         {/* User Raw GPS Marker explicitly injecting animated ping cycles cleanly avoiding index clashes */}
         {userLocation && (
           <Marker
@@ -154,15 +211,22 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
             style={{ zIndex: 100 }}
           >
             <div className="relative flex h-5 w-5 items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#2563eb] border-2 border-[#fcfbf8] shadow-md"></span>
+              <span
+                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                style={{ backgroundColor: userGpsColor }}
+              ></span>
+              <span
+                className="relative inline-flex rounded-full h-3.5 w-3.5 border-2 border-[#fcfbf8] shadow-md"
+                style={{ backgroundColor: userGpsColor }}
+              ></span>
             </div>
           </Marker>
         )}
 
         {clusters.map(cluster => {
           const [longitude, latitude] = cluster.geometry.coordinates;
-          const { cluster: isCluster, point_count: pointCount, spot, spotId, category } = cluster.properties as any;
+          const { cluster: isCluster, point_count: pointCount, spot, spotId, category = "gym" } =
+            cluster.properties as ClusterPointProperties;
 
           // Clustered State natively rolling up bounds dynamically
           if (isCluster) {
@@ -196,7 +260,7 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
               latitude={latitude}
               onClick={e => {
                 e.originalEvent.stopPropagation();
-                if (onMarkerClick) onMarkerClick(spot);
+                if (onMarkerClick && spot) onMarkerClick(spot);
               }}
               style={{ zIndex: activeSpotId === spotId ? 50 : 10 }}
             >
@@ -296,7 +360,30 @@ export function MapView({ className, spots = [], activeSpotId, userLocation, onM
         })}
       </div>
 
+      {/* Satellite / Map View Toggle */}
+      <button
+        type="button"
+        onClick={() => setIsSatellite((prev) => !prev)}
+        aria-pressed={isSatellite}
+        aria-label={isSatellite ? "Switch to standard map view" : "Switch to satellite view"}
+        className={cn(
+          "absolute top-2.5 right-12 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-bold shadow-md border transition-colors cursor-pointer",
+          isSatellite
+            ? "bg-[#1c1c1c] text-[#fcfbf8] border-[#1c1c1c]"
+            : "bg-[#fcfbf8]/95 backdrop-blur-sm text-[#1c1c1c] border-white hover:bg-[#f7f4ed]"
+        )}
+      >
+        <Satellite className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+        <span>{isSatellite ? "Map" : "Satellite"}</span>
+      </button>
+
       <div className="absolute bottom-2 right-2 bg-[#f7f4ed] border border-[var(--border-passive)] text-[#1c1c1c] text-[10px] px-2 py-[2px] rounded-[4px] shadow-sm z-10 opacity-80 hover:opacity-100 transition-opacity flex gap-1">
+        {isSatellite && (
+          <>
+            <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer" className="hover:underline">Esri</a>
+            <span>|</span>
+          </>
+        )}
         <a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer" className="hover:underline">OpenFreeMap</a>
         <span>|</span>
         <span>&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline">OpenStreetMap</a></span>
