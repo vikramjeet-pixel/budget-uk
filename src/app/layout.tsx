@@ -9,6 +9,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CookieConsentBanner } from "@/components/features/CookieConsentBanner";
 import { InstallPrompt } from "@/components/features/InstallPrompt";
 import { WelcomeModal } from "@/components/features/WelcomeModal";
+import { COLOR_VISION_INIT_SCRIPT } from "@/lib/colorVision";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
@@ -57,7 +58,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} h-full antialiased`}
+      data-vision="default"
+      // The init script below may change data-vision before React hydrates.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: COLOR_VISION_INIT_SCRIPT }} />
+      </head>
       {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
       <body className="min-h-full flex flex-col bg-[#f7f4ed]">
         <AuthProvider>

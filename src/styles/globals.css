@@ -106,6 +106,30 @@
   --ring: rgba(59,130,246,0.5);
   --focus-shadow: 0 4px 12px rgba(0,0,0,0.1);
   --inset-dark: rgba(255,255,255,0.2) 0 0.5px 0 0 inset, rgba(0,0,0,0.2) 0 0 0 0.5px inset, rgba(0,0,0,0.05) 0 1px 2px 0;
+
+  /* Colour-vision semantic tokens (default palette). Remapped per
+     [data-vision] mode further down. Namespaced with --vision-* so they don't
+     collide with shadcn's --accent / --destructive tokens. */
+  --vision-accent: #2D5A4C;
+  --vision-accent-hover: #23473C;
+  --vision-accent-fg: #FFFFFF;
+  --vision-danger: #DC2626;
+  --vision-danger-hover: #B91C1C;
+  --vision-danger-text: #DC2626;
+  --vision-danger-bg: #FEF2F2;
+  --vision-success: #16A34A;
+  --vision-success-hover: #15803D;
+  --vision-success-text: #16A34A;
+  --vision-success-bg: #DCFCE7;
+  --vision-banner: #FFCE00;
+  --vision-banner-text: #1C1C1C;
+  --danger: #DC2626;
+  --danger-text: #DC2626;
+  --danger-bg: #FEF2F2;
+  --success: #16A34A;
+  --success-text: #16A34A;
+  --success-bg: #DCFCE7;
+  --banner: #FFCE00;
 }
 
 .dark {
@@ -219,4 +243,250 @@
     font-weight: 400;
     line-height: 1.5;
   }
+}
+
+
+/* ==========================================================================
+   COLOUR-VISION ACCESSIBILITY MODES
+   Set via <html data-vision="..."> (see src/lib/colorVision.ts).
+   These REMAP colours into safe palettes — they never simulate colour
+   blindness with filters. Cream & Charcoal neutrals are preserved.
+   Rules are unlayered (beat Tailwind's @layer utilities) and use !important
+   to override hardcoded arbitrary-value classes.
+   ========================================================================== */
+
+/* ---- Group A: red-green (protan / deutan) — Cobalt Blue + Vermilion ---- */
+html[data-vision="deuteranomaly"],
+html[data-vision="protanomaly"],
+html[data-vision="deuteranopia"],
+html[data-vision="protanopia"] {
+  --vision-accent: #1D4ED8;
+  --vision-accent-hover: #1E40AF;
+  --vision-danger: #D55E00;
+  --vision-danger-hover: #B44C00;
+  --vision-danger-text: #B44C00;
+  --vision-danger-bg: #FFF3EB;
+  --vision-success: #0072B2;
+  --vision-success-hover: #005A8D;
+  --vision-success-text: #005A8D;
+  --vision-success-bg: #E6F3FA;
+  --vision-banner: #E69F00;
+  --vision-banner-text: #1C1C1C;
+  --accent: #1D4ED8;
+  --accent-hover: #1E40AF;
+  --danger: #D55E00;
+  --danger-text: #B44C00;
+  --danger-bg: #FFF3EB;
+  --success: #0072B2;
+  --success-text: #005A8D;
+  --success-bg: #E6F3FA;
+  --banner: #E69F00;
+  --destructive: #D55E00;
+}
+
+/* ---- Group B: blue-yellow (tritan) — Crimson Red + Deep Teal ---- */
+html[data-vision="tritanomaly"],
+html[data-vision="tritanopia"] {
+  --vision-accent: #0F766E;
+  --vision-accent-hover: #115E59;
+  --vision-danger: #BE123C;
+  --vision-danger-hover: #9F1239;
+  --vision-danger-text: #9F1239;
+  --vision-danger-bg: #FFF1F2;
+  --vision-success: #0E7490;
+  --vision-success-hover: #155E75;
+  --vision-success-text: #155E75;
+  --vision-success-bg: #ECFEFF;
+  --vision-banner: #E11D48;
+  --vision-banner-text: #FCFBF8;
+  --accent: #0F766E;
+  --accent-hover: #115E59;
+  --danger: #BE123C;
+  --danger-text: #9F1239;
+  --danger-bg: #FFF1F2;
+  --success: #0E7490;
+  --success-text: #155E75;
+  --success-bg: #ECFEFF;
+  --banner: #E11D48;
+  --destructive: #BE123C;
+  --ring: rgba(28, 28, 28, 0.6); /* blue focus ring is weak for tritans */
+}
+
+/* ---- Group C: achromatopsia — luminance, borders and patterns only ---- */
+html[data-vision="achromatopsia"] {
+  --vision-accent: #1C1C1C;
+  --vision-accent-hover: #3A3A3A;
+  --vision-danger: #1C1C1C;
+  --vision-danger-hover: #3A3A3A;
+  --vision-danger-text: #1C1C1C;
+  --vision-danger-bg: #FFFFFF;
+  --vision-success: #404040;
+  --vision-success-hover: #262626;
+  --vision-success-text: #404040;
+  --vision-success-bg: #F0EDE6;
+  --vision-banner: #E5E0D5;
+  --vision-banner-text: #1C1C1C;
+  --accent: #1C1C1C;
+  --accent-hover: #3A3A3A;
+  --danger: #1C1C1C;
+  --danger-text: #1C1C1C;
+  --danger-bg: #FFFFFF;
+  --success: #404040;
+  --success-text: #404040;
+  --success-bg: #F0EDE6;
+  --banner: #E5E0D5;
+  --destructive: #1C1C1C;
+  --border-passive: #A3A3A3;
+  --border-interactive: rgba(28, 28, 28, 0.7);
+  --sidebar-border: #A3A3A3;
+  --border: #A3A3A3;
+  --input: #A3A3A3;
+  --ring: #1C1C1C;
+}
+
+/* --------------------------------------------------------------------------
+   Hardcoded class overrides — shared by every non-default mode; the values
+   come from the per-group variables above.
+   -------------------------------------------------------------------------- */
+
+/* Accent (Forest Green #2D5A4C) */
+html[data-vision]:not([data-vision="default"]) .bg-\[\#2d5a4c\],
+html[data-vision]:not([data-vision="default"]) .bg-\[\#2D5A4C\] {
+  background-color: var(--vision-accent) !important;
+  color: var(--vision-accent-fg) !important;
+}
+html[data-vision]:not([data-vision="default"]) .hover\:bg-\[\#23473c\]:hover,
+html[data-vision]:not([data-vision="default"]) .hover\:bg-\[\#23473C\]:hover {
+  background-color: var(--vision-accent-hover) !important;
+}
+html[data-vision]:not([data-vision="default"]) .text-\[\#2d5a4c\],
+html[data-vision]:not([data-vision="default"]) .text-\[\#2D5A4C\] {
+  color: var(--vision-accent) !important;
+}
+html[data-vision]:not([data-vision="default"]) .border-\[\#2d5a4c\],
+html[data-vision]:not([data-vision="default"]) .border-\[\#2D5A4C\] {
+  border-color: var(--vision-accent) !important;
+}
+
+/* Danger — text */
+html[data-vision]:not([data-vision="default"]) .text-\[\#dc2626\],
+html[data-vision]:not([data-vision="default"]) .text-\[\#DC2626\],
+html[data-vision]:not([data-vision="default"]) .text-red-500,
+html[data-vision]:not([data-vision="default"]) .text-red-600,
+html[data-vision]:not([data-vision="default"]) .text-red-700,
+html[data-vision]:not([data-vision="default"]) .hover\:text-red-600:hover,
+html[data-vision]:not([data-vision="default"]) .hover\:text-\[\#dc2626\]:hover {
+  color: var(--vision-danger-text) !important;
+}
+/* Danger — light backgrounds */
+html[data-vision]:not([data-vision="default"]) .bg-red-50,
+html[data-vision]:not([data-vision="default"]) .bg-red-100,
+html[data-vision]:not([data-vision="default"]) .hover\:bg-red-50:hover,
+html[data-vision]:not([data-vision="default"]) .hover\:bg-\[\#dc2626\]\/5:hover {
+  background-color: var(--vision-danger-bg) !important;
+}
+/* Danger — solid backgrounds */
+html[data-vision]:not([data-vision="default"]) .bg-red-500,
+html[data-vision]:not([data-vision="default"]) .bg-red-600 {
+  background-color: var(--vision-danger) !important;
+}
+html[data-vision]:not([data-vision="default"]) .hover\:bg-red-700:hover {
+  background-color: var(--vision-danger-hover) !important;
+}
+/* Danger — borders */
+html[data-vision]:not([data-vision="default"]) .border-red-200,
+html[data-vision]:not([data-vision="default"]) .border-red-500,
+html[data-vision]:not([data-vision="default"]) .border-\[\#dc2626\]\/20,
+html[data-vision]:not([data-vision="default"]) .hover\:border-\[\#dc2626\]:hover,
+html[data-vision]:not([data-vision="default"]) .hover\:border-\[\#dc2626\]\/20:hover {
+  border-color: var(--vision-danger) !important;
+}
+
+/* Success — text */
+html[data-vision]:not([data-vision="default"]) .text-green-600,
+html[data-vision]:not([data-vision="default"]) .text-green-700,
+html[data-vision]:not([data-vision="default"]) .text-green-800,
+html[data-vision]:not([data-vision="default"]) .text-emerald-700 {
+  color: var(--vision-success-text) !important;
+}
+/* Success — backgrounds */
+html[data-vision]:not([data-vision="default"]) .bg-green-50,
+html[data-vision]:not([data-vision="default"]) .bg-green-100 {
+  background-color: var(--vision-success-bg) !important;
+}
+html[data-vision]:not([data-vision="default"]) .bg-green-400,
+html[data-vision]:not([data-vision="default"]) .bg-green-500,
+html[data-vision]:not([data-vision="default"]) .bg-green-600 {
+  background-color: var(--vision-success) !important;
+}
+html[data-vision]:not([data-vision="default"]) .hover\:bg-green-700:hover {
+  background-color: var(--vision-success-hover) !important;
+}
+html[data-vision]:not([data-vision="default"]) .border-green-300 {
+  border-color: var(--vision-success) !important;
+}
+
+/* Status banner (TfL yellow #FFCE00) + its charcoal text/dots */
+html[data-vision]:not([data-vision="default"]) .bg-\[\#ffce00\],
+html[data-vision]:not([data-vision="default"]) .bg-\[\#FFCE00\] {
+  background-color: var(--vision-banner) !important;
+  color: var(--vision-banner-text) !important;
+}
+html[data-vision]:not([data-vision="default"]) .bg-\[\#ffce00\] .text-\[\#1c1c1c\] {
+  color: var(--vision-banner-text) !important;
+}
+html[data-vision]:not([data-vision="default"]) .bg-\[\#ffce00\] .bg-\[\#1c1c1c\] {
+  background-color: var(--vision-banner-text) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Achromatopsia extras — hue is invisible, so add borders, dash patterns
+   and weight to carry the meaning colour used to carry.
+   -------------------------------------------------------------------------- */
+html[data-vision="achromatopsia"] .bg-\[\#2d5a4c\],
+html[data-vision="achromatopsia"] .bg-\[\#2D5A4C\] {
+  border: 2px solid #1C1C1C !important;
+}
+
+/* Danger: white surface, dashed charcoal border, bold dark text */
+html[data-vision="achromatopsia"] .bg-red-50,
+html[data-vision="achromatopsia"] .bg-red-100 {
+  border: 2px dashed #1C1C1C !important;
+}
+html[data-vision="achromatopsia"] .border-red-200,
+html[data-vision="achromatopsia"] .border-red-500,
+html[data-vision="achromatopsia"] .border-\[\#dc2626\]\/20 {
+  border-style: dashed !important;
+  border-width: 2px !important;
+}
+html[data-vision="achromatopsia"] .bg-red-500,
+html[data-vision="achromatopsia"] .bg-red-600 {
+  color: #FFFFFF !important;
+  border: 2px dashed #FFFFFF !important;
+  outline: 2px solid #1C1C1C;
+}
+html[data-vision="achromatopsia"] .text-\[\#dc2626\],
+html[data-vision="achromatopsia"] .text-red-500,
+html[data-vision="achromatopsia"] .text-red-600,
+html[data-vision="achromatopsia"] .text-red-700 {
+  font-weight: 700 !important;
+}
+
+/* Success: soft surface, solid #404040 border */
+html[data-vision="achromatopsia"] .bg-green-50,
+html[data-vision="achromatopsia"] .bg-green-100 {
+  border: 2px solid #404040 !important;
+}
+html[data-vision="achromatopsia"] .bg-green-400,
+html[data-vision="achromatopsia"] .bg-green-500,
+html[data-vision="achromatopsia"] .bg-green-600 {
+  color: #FFFFFF !important;
+  border: 2px solid #404040 !important;
+}
+
+/* Banner (only the outer strip, not its edge overlays) */
+html[data-vision="achromatopsia"] .bg-\[\#ffce00\].border-b,
+html[data-vision="achromatopsia"] .bg-\[\#FFCE00\].border-b {
+  border-top: 2px solid #1C1C1C !important;
+  border-bottom: 2px solid #1C1C1C !important;
 }

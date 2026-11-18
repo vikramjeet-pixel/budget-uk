@@ -13,6 +13,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
 import { CitySelector } from "./CitySelector";
+import { ColorVisionDropdown } from "./ColorVisionDropdown";
 
 const STATIC_PAGES = ["about", "about-me", "privacy", "terms", "login", "signup", "account"];
 
@@ -139,6 +140,8 @@ export function Header() {
         )}
 
         <div className="hidden md:flex items-center space-x-4">
+          <ColorVisionDropdown compact className="xl:hidden" />
+          <ColorVisionDropdown className="hidden xl:block" />
           {loading ? (
              <div className="h-9 w-[120px] bg-[var(--border-passive)] animate-pulse rounded-[6px]" />
           ) : user ? (
@@ -254,6 +257,10 @@ export function Header() {
                 </DropdownMenu.Root>
               </li>
               <li className="flex flex-col space-y-3 pt-4 border-t border-[var(--border-passive)]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[14px] text-[#1c1c1c]">Colour vision</span>
+                  <ColorVisionDropdown />
+                </div>
                 {user ? (
                   <>
                     <Link href="/account" className="w-full">
